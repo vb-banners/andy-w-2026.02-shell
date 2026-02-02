@@ -9,6 +9,15 @@ HTML5 banner development template using Gulp, Pug templating, Sass, and GSAP ani
 ## Requirements
 
 - Node.js >= 18.0.0
+- [nosync-icloud](https://github.com/nickytonline/nosync-icloud) (`npm i -g nosync-icloud`) - for projects in iCloud
+
+## Installation
+
+```bash
+ns install    # Use ns (nosync-icloud) for iCloud directories
+```
+
+This creates `node_modules.nosync` and symlinks it to avoid iCloud sync issues.
 
 ## Commands
 

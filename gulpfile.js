@@ -26,10 +26,9 @@ const pugOptions = {
 
 const { series, parallel, src, dest, watch } = require('gulp')
 const pug = require('gulp-pug')
-const gulpPugBeautify = require('gulp-pug-beautify')
+const prettier = require('gulp-prettier')
 const sass = require('gulp-sass')(require('sass'))
 const prefix = require('gulp-autoprefixer')
-const csscomb = require('gulp-csscomb')
 const path = require('path')
 const { exec, spawn } = require('child_process')
 // del@6+ is ESM-only; wrap dynamic import for CJS gulpfile
@@ -39,7 +38,7 @@ const del = async (patterns, options) => {
     return fn(patterns, options);
 }
 const zip = require('gulp-zip')
-const foreach = require('gulp-foreach')
+const fs = require('fs')
 const size = require('gulp-size')
 const cache = require('gulp-cached')
 const newer = require('gulp-newer')
@@ -224,11 +223,7 @@ let buildPug = () => {
         .pipe(cache('pug'))  // Cache by content to skip unchanged files
         .pipe(pug(pugOptions))
         // Temporarily disabled due to truncation issue
-        // .pipe(gulpPugBeautify({
-        //     omit_empty: true,
-        //     fill_tab: false,
-        //     tab_size: 4
-        // }))
+        // .pipe(prettier({ parser: 'html', tabWidth: 4, useTabs: false }))
         .pipe(dest('./build.nosync/'))
         .pipe(browserSync.stream())
 }
@@ -247,7 +242,6 @@ let buildSass = () => {
         .pipe(cache('sass'))  // Cache by content to skip unchanged files
         .pipe(sass())
         .pipe(prefix())
-        .pipe(csscomb())
         .pipe(dest('./build.nosync/'))
         .pipe(browserSync.stream())
 }
@@ -301,7 +295,6 @@ let zipClean = () => del(['./build.nosync/*.zip']) // Delete zip files from buil
 let allZipsClean = () => del(['./build.nosync/*.zip', './export.nosync']) // Delete all zip files and export folder
 
 // ---- Zip caching helpers ----
-const fs = require('fs')
 const crypto = require('crypto')
 
 function ensureDirSync(d) { try { fs.mkdirSync(d, { recursive: true }) } catch (_) {} }
@@ -371,23 +364,31 @@ function shouldZipDir(dirPath) {
     return changed || missingZip
 }
 
-let buildZip = () => {
+let buildZip = async () => {
     console.log('[buildZip] CALLED! This should not happen when enableAutoZip=false')
     console.trace('[buildZip] Call stack trace:')
-    return src(['build.nosync/*', '!build.nosync/*.zip'], { read: false, allowEmpty: true })
-        .pipe(
-            foreach((stream, file) => {
-                const isDir = typeof file.isDirectory === 'function' ? file.isDirectory() : (file.stat && file.stat.isDirectory && file.stat.isDirectory())
-                if (!isDir) return stream
-                const dirPath = file.path
-                const dirName = path.basename(dirPath)
-                if (!shouldZipDir(dirPath)) return stream
-                return src(`${dirPath.replace(/\\/g, '/')}/**/*`, { allowEmpty: true, encoding: false })
-                    .pipe(zip(`${dirName}.zip`))
-                    .pipe(size({ showFiles: true }))
-                    .pipe(dest('build.nosync/'))
-            })
-        )
+
+    const buildDir = path.resolve(__dirname, 'build.nosync')
+    if (!fs.existsSync(buildDir)) return Promise.resolve()
+
+    // Get all directories in build.nosync that should be zipped
+    const entries = fs.readdirSync(buildDir, { withFileTypes: true })
+    const dirs = entries
+        .filter(e => e.isDirectory())
+        .map(e => e.name)
+        .filter(name => shouldZipDir(path.join(buildDir, name)))
+
+    // Zip each directory
+    for (const dirName of dirs) {
+        const dirPath = path.join(buildDir, dirName)
+        await new Promise((resolve) => {
+            src(`${dirPath.replace(/\\/g, '/')}/**/*`, { allowEmpty: true, encoding: false })
+                .pipe(zip(`${dirName}.zip`))
+                .pipe(size({ showFiles: true }))
+                .pipe(dest('build.nosync/'))
+                .on('end', resolve)
+        })
+    }
 }
 
 // Build pug files for a single size directory without cache (used on new dir/rename)
@@ -398,11 +399,7 @@ function buildPugFreshDir(dirName) {
         src([glob], { allowEmpty: true })
             .pipe(plumber())
             .pipe(pug(pugOptions))
-            .pipe(gulpPugBeautify({
-                omit_empty: true,
-                fill_tab: false,
-                tab_size: 4
-            }))
+            .pipe(prettier({ parser: 'html', tabWidth: 4, useTabs: false }))
             .pipe(dest('./build.nosync/' + dirName + '/'))
             .on('end', () => {
                 reloadBrowser(true)
@@ -546,7 +543,6 @@ let watchTask = () => {
             .pipe(plumber())
             .pipe(sass())
             .pipe(prefix())
-            .pipe(csscomb())
             .pipe(dest(path.dirname(destPath)))
             .on('end', () => {
                 reloadBrowser(true)
@@ -649,11 +645,7 @@ let watchTask = () => {
                     src(['src/sizes/index.pug'], { allowEmpty: true })
                         .pipe(plumber())
                         .pipe(pug(pugOptions))
-                        .pipe(gulpPugBeautify({
-                            omit_empty: true,
-                            fill_tab: false,
-                            tab_size: 4
-                        }))
+                        .pipe(prettier({ parser: 'html', tabWidth: 4, useTabs: false }))
                         .pipe(dest('./build.nosync/'))
                         .on('end', () => { resolve(); })
                 })

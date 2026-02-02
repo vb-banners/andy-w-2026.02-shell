@@ -365,9 +365,6 @@ function shouldZipDir(dirPath) {
 }
 
 let buildZip = async () => {
-    console.log('[buildZip] CALLED! This should not happen when enableAutoZip=false')
-    console.trace('[buildZip] Call stack trace:')
-
     const buildDir = path.resolve(__dirname, 'build.nosync')
     if (!fs.existsSync(buildDir)) return Promise.resolve()
 
@@ -710,7 +707,7 @@ exports.build = series(buildClean, parallel(buildPug, buildGlobalPug, buildSass,
 // Clean build then start dev server with watch
 exports.devbuild = series(buildClean, parallel(buildPug, buildGlobalPug, buildSass, buildImg, buildJs), writeBannerSizesPlaceholder, serve, watchTask)
 // Ensure the browser refreshes after zip so preview updates live
-exports.zip = series(allZipsClean, imageClean, jsClean, buildImg, buildJs, buildPug, buildGlobalPug, buildZip, writeZipSizes, reload, createCompletePackage, createPackage)
+exports.zip = series(allZipsClean, imageClean, jsClean, buildImg, buildJs, buildPug, buildGlobalPug, buildZip, writeZipSizes, createCompletePackage, createPackage)
 exports.clean = buildClean
 
 // ---------- Package ----------
@@ -736,7 +733,7 @@ function getFtpConfig() {
         host: process.env.FTP_HOST,
         user: process.env.FTP_USER,
         password: process.env.FTP_PASSWORD,
-        port: parseInt(process.env.FTP_PORT || '22', 10),
+        port: parseInt(process.env.FTP_PORT || '21', 10),
         remotePath: process.env.FTP_REMOTE_PATH,
         remoteSubdir: process.env.FTP_REMOTE_SUBDIR,
         publicUrlBase: process.env.FTP_PUBLIC_URL,
@@ -748,7 +745,7 @@ function getFtpConfig() {
         try {
             const filePath = path.resolve(__dirname, 'ftp.config.json')
             const fileCfg = require(filePath)
-            cfg = Object.assign({ parallel: 5, port: 22 }, fileCfg)
+            cfg = Object.assign({ parallel: 5, port: 21 }, fileCfg)
             if (DEBUG) console.log('[ftp] Using ftp.config.json')
         } catch (e) {
             // No config file found
@@ -772,25 +769,22 @@ function getFtpConfig() {
 
 async function ftpList() {
     const cfg = getFtpConfig()
-    const SftpClient = await lazyRequire('ssh2-sftp-client')
-    const client = new SftpClient()
+    const ftp = await lazyRequire('basic-ftp')
+    const client = new ftp.Client()
     const remoteBase = String(cfg.remotePath).replace(/\\/g, '/').replace(/\/$/, '')
     try {
-        await client.connect({
+        await client.access({
             host: cfg.host,
-            username: cfg.user,
+            user: cfg.user,
             password: cfg.password,
-            port: cfg.port || 22
+            port: cfg.port || 21,
+            secure: false
         })
-        // Ensure remote directory exists
-        const exists = await client.exists(remoteBase)
-        if (!exists) {
-            await client.mkdir(remoteBase, true)
-        }
+        await client.ensureDir(remoteBase)
         const list = await client.list(remoteBase)
         console.log(`Remote listing for ${remoteBase}:`)
         list.forEach((item) => {
-            const type = item.type === 'd' ? 'dir ' : 'file'
+            const type = item.type === 2 ? 'dir ' : 'file'
             const sizeKb = item.size != null ? (Math.round(item.size / 10.24) / 100).toFixed(2) + ' KB' : '-'
             console.log(` - [${type}] ${item.name} ${sizeKb}`)
         })
@@ -800,55 +794,50 @@ async function ftpList() {
             console.log(`Public URL: ${baseUrl}/${sub}`)
         }
     } finally {
-        await client.end()
+        client.close()
     }
 }
 
 async function ftpClean() {
     const cfg = getFtpConfig()
-    const SftpClient = await lazyRequire('ssh2-sftp-client')
-    const client = new SftpClient()
+    const ftp = await lazyRequire('basic-ftp')
+    const client = new ftp.Client()
     const remoteBase = String(cfg.remotePath).replace(/\\/g, '/').replace(/\/$/, '')
     try {
-        await client.connect({
+        await client.access({
             host: cfg.host,
-            username: cfg.user,
+            user: cfg.user,
             password: cfg.password,
-            port: cfg.port || 22
+            port: cfg.port || 21,
+            secure: false
         })
-        // Ensure remote directory exists
-        const exists = await client.exists(remoteBase)
-        if (exists) {
-            // Remove directory contents recursively, then recreate
-            await client.rmdir(remoteBase, true)
-        }
-        await client.mkdir(remoteBase, true)
+        await client.ensureDir(remoteBase)
+        await client.cd(remoteBase)
+        await client.clearWorkingDir()
         console.log(`Remote folder cleared: ${remoteBase}`)
     } finally {
-        await client.end()
+        client.close()
     }
 }
 
 let ftpUpload = async () => {
     const cfg = getFtpConfig()
-    const SftpClient = await lazyRequire('ssh2-sftp-client')
+    const ftp = await lazyRequire('basic-ftp')
     const through2 = await lazyRequire('through2')
-    const client = new SftpClient()
+    const client = new ftp.Client()
 
     const localBase = path.resolve(__dirname, 'build.nosync')
     const remoteBase = String(cfg.remotePath).replace(/\\/g, '/').replace(/\/$/, '')
 
     const connect = async () => {
-        await client.connect({
+        await client.access({
             host: cfg.host,
-            username: cfg.user,
+            user: cfg.user,
             password: cfg.password,
-            port: cfg.port || 22
+            port: cfg.port || 21,
+            secure: false
         })
-        const exists = await client.exists(remoteBase)
-        if (!exists) {
-            await client.mkdir(remoteBase, true)
-        }
+        await client.ensureDir(remoteBase)
     }
 
     let connected = false
@@ -860,13 +849,6 @@ let ftpUpload = async () => {
         }
     }
 
-    const ensureDir = async (dir) => {
-        const exists = await client.exists(dir)
-        if (!exists) {
-            await client.mkdir(dir, true)
-        }
-    }
-
     const uploadStream = through2.obj(function (file, _, cb) {
         if (file.isDirectory()) return cb()
         const rel = path.relative(localBase, file.path).split(path.sep).join('/')
@@ -875,8 +857,8 @@ let ftpUpload = async () => {
         const remoteDir = remotePath.substring(0, remotePath.lastIndexOf('/'))
 
         ensureConnected()
-            .then(() => ensureDir(remoteDir))
-            .then(() => client.put(file.path, remotePath))
+            .then(() => client.ensureDir(remoteDir))
+            .then(() => client.uploadFrom(file.path, remotePath))
             .then(() => cb())
             .catch((err) => cb(err))
     }, function (cb) {
@@ -886,23 +868,18 @@ let ftpUpload = async () => {
             const url = `${baseUrl}/${sub}`
             console.log(`Public URL: ${url}`)
             copyToClipboard(url)
-            // Try to open default browser (macOS: open, Windows: start, Linux: xdg-open)
+            // Open in default browser
             const cmd = process.platform === 'darwin'
                 ? `open "${url}"`
                 : process.platform === 'win32'
                     ? `start "" "${url}"`
                     : `xdg-open "${url}"`
-            exec(cmd, (err) => {
-                if (err) {
-                    // non-fatal: just log a short note
-                    console.log('Tip: open this URL in your browser if it did not open automatically.')
-                }
-                client.end()
-                cb()
-            })
+            exec(cmd, () => {})
+            client.close()
+            cb()
             return
         }
-        client.end()
+        client.close()
         cb()
     })
 

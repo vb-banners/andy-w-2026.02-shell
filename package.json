@@ -19,6 +19,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "basic-ftp": "^5.1.0",
     "browser-sync": "^3.0.4",
     "del": "^8.0.1",
     "dotenv": "^17.2.3",

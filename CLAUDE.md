@@ -115,7 +115,7 @@ Configure credentials in `.env`:
 FTP_HOST=your-host.com
 FTP_USER=username
 FTP_PASSWORD=password
-FTP_PORT=22
+FTP_PORT=21
 FTP_REMOTE_PATH=/path/to/banners
 FTP_PUBLIC_URL=https://example.com/banners
 ```

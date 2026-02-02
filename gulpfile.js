@@ -26,7 +26,7 @@ const pugOptions = {
 
 const { series, parallel, src, dest, watch } = require('gulp')
 const pug = require('gulp-pug')
-const prettier = require('gulp-prettier')
+const prettier = require('gulp-prettier').default
 const sass = require('gulp-sass')(require('sass'))
 const prefix = require('gulp-autoprefixer')
 const path = require('path')

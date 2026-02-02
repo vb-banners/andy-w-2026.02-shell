@@ -2,6 +2,10 @@
 
 A Gulp-based development environment for creating animated HTML5 banners using Pug, Sass, and GSAP.
 
+## Requirements
+
+- Node.js >= 18.0.0
+
 ## Quick Start
 
 ```bash
@@ -26,6 +30,7 @@ Open http://localhost:9000 to preview banners.
 | `npm run build` | Full rebuild without server |
 | `npm run zip` | Build and create delivery packages |
 | `npm run ftp` | Build, zip, and upload to FTP |
+| `npm run verify:images` | Verify banner images exist |
 
 ## Project Structure
 
@@ -34,10 +39,12 @@ src/
 ├── global/           # Shared templates
 │   ├── master.pug    # Base banner template
 │   ├── vars.pug      # Variables, colors, mixins
+│   ├── set.pug       # Set-specific variables
 │   ├── preview.pug   # Preview page template
+│   ├── resources.pug # Code snippets reference
 │   └── plugins/      # GSAP plugins
 └── sizes/            # Individual banners
-    └── {name}-{WxH}/ # Banner folder (e.g., shell-thinking-300x250)
+    └── {name}-{WxH}/ # Banner folder (e.g., shell-fleet-solutions-300x250)
         ├── index.pug # Banner template
         └── *.jpg/png # Assets
 ```

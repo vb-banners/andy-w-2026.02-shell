@@ -18,6 +18,12 @@ const skipInitialBuild = config.features.skipInitialBuild
 const PATHS = config.paths
 const TIMING = config.timing
 
+// Pug options with config data passed to templates
+const pugOptions = {
+    pretty: true,
+    data: { config }
+}
+
 const { series, parallel, src, dest, watch } = require('gulp')
 const pug = require('gulp-pug')
 const gulpPugBeautify = require('gulp-pug-beautify')
@@ -216,7 +222,7 @@ let buildPug = () => {
     return src(['./src/sizes/**/*.pug', '!src/sizes/_*/*.pug', '!src/sizes/_*.pug'])
         .pipe(plumber())
         .pipe(cache('pug'))  // Cache by content to skip unchanged files
-        .pipe(pug({ pretty: true }))
+        .pipe(pug(pugOptions))
         // Temporarily disabled due to truncation issue
         // .pipe(gulpPugBeautify({
         //     omit_empty: true,
@@ -391,7 +397,7 @@ function buildPugFreshDir(dirName) {
     return new Promise((resolve) => {
         src([glob], { allowEmpty: true })
             .pipe(plumber())
-            .pipe(pug({ pretty: true }))
+            .pipe(pug(pugOptions))
             .pipe(gulpPugBeautify({
                 omit_empty: true,
                 fill_tab: false,
@@ -502,7 +508,7 @@ let watchTask = () => {
         
         src(changedPath)
             .pipe(plumber())
-            .pipe(pug({ pretty: true }))
+            .pipe(pug(pugOptions))
             .pipe(dest(path.dirname(destPath)))
             .on('end', () => {
                 reloadBrowser(true)
@@ -642,7 +648,7 @@ let watchTask = () => {
                 return new Promise((resolve) => {
                     src(['src/sizes/index.pug'], { allowEmpty: true })
                         .pipe(plumber())
-                        .pipe(pug({ pretty: true }))
+                        .pipe(pug(pugOptions))
                         .pipe(gulpPugBeautify({
                             omit_empty: true,
                             fill_tab: false,

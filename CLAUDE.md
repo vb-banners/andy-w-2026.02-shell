@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 HTML5 banner development template using Gulp, Pug templating, Sass, and GSAP animation. Each project produces self-contained banner HTML files for ad networks.
 
+## Requirements
+
+- Node.js >= 18.0.0
+
 ## Commands
 
 ```bash
@@ -14,6 +18,7 @@ npm run dev:build    # Clean rebuild + dev server
 npm run build        # Full rebuild without dev server
 npm run zip          # Build + create delivery zip packages
 npm run ftp          # Build, zip, and upload to configured FTP server
+npm run verify:images  # Verify all banner images exist and are referenced
 ```
 
 ## Architecture
@@ -24,15 +29,28 @@ src/
 ├── global/           # Shared templates and assets
 │   ├── master.pug    # Base HTML template all banners extend
 │   ├── preview.pug   # Preview page template with controls
-│   ├── vars.pug      # Project variables, colors, mixins
+│   ├── vars.pug      # Project variables, colors, mixins (see structure below)
 │   ├── set.pug       # Set-specific variables
+│   ├── resources.pug # Code snippets and reference patterns (not compiled)
 │   └── plugins/      # GSAP plugins (minified)
 └── sizes/            # Individual banner directories
     ├── index.pug     # Preview page showing all banners
-    └── {set}-{size}/ # Banner folder (e.g., shell-thinking-300x250/)
+    └── {set}-{size}/ # Banner folder (e.g., shell-fleet-solutions-300x250/)
         ├── index.pug # Banner template
         └── *.jpg/png # Banner-specific images
 ```
+
+### vars.pug Structure (top to bottom)
+```
+1. PROJECT CONFIGURATION  - mainSet, logoLink, footer from banner.config.js
+2. SETS                   - Set definitions using mainSet (edited per project)
+3. MIXINS - Header        - Header mixin with setsline navigation
+4. COLORS                 - Light/dark theme color variables
+5. MIXINS - Banner Iframes, Style Blocks, Navigation, Controls
+6. EFFECTS                - Shimmer, Spinner, Shadows
+7. TIMING                 - Animation timing constants
+```
+Most-edited sections are at the top for easy access.
 
 ### Banner Template Structure
 

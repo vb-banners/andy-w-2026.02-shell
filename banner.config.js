@@ -6,7 +6,21 @@
 module.exports = {
     // Project identification
     project: {
-        name: 'shell',  // Used for zip file naming (e.g., shell-all-banners.zip)
+        name: 'shell',           // Used for zip file naming and set prefixes
+        title: 'Shell Fleet Solutions',          // Display title in preview
+        logoLink: false,         // URL for logo click (false = reload page)
+        footerLink: false,       // URL for footer link (false = no link)
+        footer: {
+            copyright: '©',
+            year: '2026',
+            company: 'NS+R UK Ltd. All rights reserved',
+        },
+    },
+
+    // Preview page settings
+    preview: {
+        showWholePackageDownload: false,  // Show "All Banners + Preview" download option
+        enablePreloading: false,          // Enable shimmer preloading animation
     },
 
     // File paths

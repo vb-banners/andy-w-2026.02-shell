@@ -1,0 +1,1690 @@
+include vars
+
+- var previewPreloadingEnabled = (typeof enablePreviewPreloading !== 'undefined') ? !!enablePreviewPreloading : true
+
+doctype html
+html(lang='en')
+head
+    //- Ensure critical theme variables exist even if not provided upstream
+    - var headerColor = (typeof headerColor !== 'undefined') ? headerColor : (typeof lightHeaderBgColor !== 'undefined' ? lightHeaderBgColor : '#000')
+    //- Spinner color fallbacks (tie to existing palette)
+    - var lightSpinnerBorderColor = (typeof lightSpinnerBorderColor !== 'undefined') ? lightSpinnerBorderColor : (typeof lightActiveColor !== 'undefined' ? lightActiveColor : '#FCE925')
+    - var lightSpinnerTopColor = (typeof lightSpinnerTopColor !== 'undefined') ? lightSpinnerTopColor : (typeof blackColor !== 'undefined' ? blackColor : '#000')
+    - var darkSpinnerBorderColor = (typeof darkSpinnerBorderColor !== 'undefined') ? darkSpinnerBorderColor : (typeof darkActiveColor !== 'undefined' ? darkActiveColor : '#FCE925')
+    - var darkSpinnerTopColor = (typeof darkSpinnerTopColor !== 'undefined') ? darkSpinnerTopColor : (typeof blackColor !== 'undefined' ? blackColor : '#000')
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    meta(http-equiv='Cache-Control' content='no-store, no-cache, must-revalidate, max-age=0')
+    meta(http-equiv='Pragma' content='no-cache')
+    meta(http-equiv='Expires' content='0')
+    meta(name='robots' content='noindex, nofollow, noarchive')
+    meta(name='google' content='notranslate')
+    meta(name='theme-color' content=headerColor id='theme-color-meta')
+    meta(name='apple-mobile-web-app-capable' content='yes')
+    meta(name='apple-mobile-web-app-status-bar-style' content='default')
+    meta(name='apple-mobile-web-app-title' content=projectTitle)
+    title #{projectTitle}
+    //- Avoid browser trying to fetch favicon.ico and causing 404 errors
+    link(rel='icon' href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>')
+    //- ensure preview URL is versioned to bypass caches
+    script.
+        (function () {
+            try {
+                var url = new URL(window.location.href);
+                if (!url.searchParams.has('v')) {
+                    url.searchParams.set('v', '#{v}');
+                    window.location.replace(url.toString());
+                }
+            } catch (e) {}
+        })();
+    //- Bootstrap 5 (CDN)
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css')
+    //- Bootstrap Icons (CDN)
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css')
+    //- Google Fonts (match vb-banners)
+    link(rel='preconnect' href='https://fonts.googleapis.com')
+    link(rel='preconnect' href='https://fonts.gstatic.com' crossorigin)
+    link(href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' rel='stylesheet')
+    //- cache-busted for dev preview
+    link(href='style.css?v=' + v rel='stylesheet')
+
+    //- Load style mixins from vars.pug (shimmer colors pre-computed in vars.pug)
+    +themeVariables()
+    +baseLayoutStyles()
+    +shimmerStyles()
+    +iframeControlStyles()
+    +toggleButtonStyles()
+    +tooltipStyles()
+    +headerControlStyles()
+    +loadingOverlayStyles()
+    +downloadPopupStyles()
+    +darkThemeStyles()
+    +mobileStyles()
+
+body(class=previewPreloadingEnabled ? null : 'banners-ready preloading-disabled')
+    //- main content grows to push footer down
+    main.flex-grow-1
+        block preview
+
+    //- File protocol notification
+    #file-protocol-notice(style='display: none; position: fixed; top: 10px; right: 10px; background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 12px 16px; border-radius: 4px; box-shadow: var(--shadow-tooltip); max-width: 300px; font-size: 13px; z-index: 1100;')
+        strong File Protocol Mode:
+        |  Some interactive features are limited when opening directly from files. For full functionality, use a local server. Extra browser refresh may be required.
+        button(onclick="this.parentElement.style.display='none'" style='background: none; border: none; float: right; cursor: pointer; font-size: 16px; margin-left: 8px;') &times;
+
+    //- Pause mode notification
+    #pause-mode-notice(style='display: none; position: fixed; bottom: 40px; left: 20px; background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 12px 16px; border-radius: 4px; box-shadow: var(--shadow-tooltip); max-width: 300px; font-size: 13px; z-index: 1100;')
+        button(onclick="this.parentElement.style.display='none'" style='background: none; border: none; position: absolute; top: 8px; right: 8px; cursor: pointer; font-size: 16px; line-height: 1; padding: 0; width: 20px; height: 20px;') &times;
+        strong Pause Mode Active:
+        |  Banners are paused and will restore to their saved positions on reload.
+
+    //- Sticky iframe buttons toggle button
+    .iframe-controls-toggle
+        i.bi.bi-eye-fill
+
+    //- Dark theme toggle button
+    .dark-theme-toggle
+        i.bi.bi-moon-fill
+
+    //- Critical footer CSS to override Bootstrap
+    style.
+        /* High priority footer color overrides with specific targeting */
+        /* Footer text coloring with direct targeting */
+        footer, footer *, footer a, footer a *, footer span { color: #{lightFooterTextColor} !important; }
+        body.dark-theme footer, body.dark-theme footer *, body.dark-theme footer a, body.dark-theme footer a *, body.dark-theme footer span { color: #{darkFooterTextColor} !important; }
+        footer a:hover, footer a:hover * { color: #{lightFooterLinkColor} !important; }
+        body.dark-theme footer a:hover, body.dark-theme footer a:hover * { color: #{darkFooterLinkColor} !important; }
+
+    //- FOOTER (matches vb-banners)
+    footer
+        .container.d-flex.flex-column.flex-md-row.align-items-center.justify-content-between.gap-3
+            a.small.mb-0.text-decoration-none(href=footerLink target='_blank' rel='noopener')
+                +footerContent()
+
+    //- Bootstrap bundle (for components like offcanvas/modal if used)
+    script(defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js')
+    //- GSAP from CDN for preview
+    script(src='https://s0.2mdn.net/ads/studio/cached_libs/gsap_3.13_min.js')
+    script.
+        window.addEventListener('load', () => {
+            gsap.set('body', {visibility: 'visible'});
+            // Track page load time for minimum shimmer duration
+            window.pageLoadTime = Date.now();
+            const preloadingEnabled = #{previewPreloadingEnabled ? 'true' : 'false'};
+
+            // If header logo is configured for reload, wire it up
+            try {
+                const logoA = document.querySelector('.topline a.logo-link');
+                if (logoA && logoA.getAttribute('data-reload') === '1') {
+                    logoA.addEventListener('click', (e) => { e.preventDefault(); location.reload(); });
+                }
+            } catch(_) {}
+
+            const isFileProtocol = (window.location && window.location.protocol === 'file:');
+            // Show notification if running on file:// protocol
+            if (isFileProtocol) {
+                try {
+                    const notice = document.getElementById('file-protocol-notice');
+                    if (notice) {
+                        notice.style.display = 'block';
+                        // Auto-hide after 10 seconds
+                        setTimeout(() => {
+                            if (notice.style.display !== 'none') {
+                                notice.style.display = 'none';
+                            }
+                        }, #{noticeAutoHideMs});
+                    }
+                } catch(_) {}
+            }
+
+            // Show pause mode notification if pause mode is active
+            try {
+                const isPaused = sessionStorage.getItem('preview-pause-mode') === 'true';
+                if (isPaused) {
+                    const pauseNotice = document.getElementById('pause-mode-notice');
+                    if (pauseNotice) {
+                        pauseNotice.style.display = 'block';
+                        // Auto-hide after 3 seconds
+                        setTimeout(() => {
+                            if (pauseNotice.style.display !== 'none') {
+                                pauseNotice.style.display = 'none';
+                            }
+                        }, 3000);
+                    }
+                }
+            } catch(_) {}
+
+            // Optional sync preload & simultaneous start
+            // Enable by adding ?sync=1 to preview URL
+            const uSync = (() => { try { return new URL(location.href).searchParams.get('sync'); } catch(_) { return null; } })();
+            const syncStart = (uSync === '1');
+            if (syncStart) { try { document.body.classList.add('sync-mode'); } catch(_) {} }
+            let syncReadyCount = 0, syncStarted = false;
+            const iframesAll = [...document.querySelectorAll('.frame-box iframe')];
+
+            // Track which banners have reported ready via postMessage
+            const bannerStates = new Map();
+            const bannersReady = new Set();
+
+            if (!preloadingEnabled) {
+                try { document.body.classList.add('banners-ready'); } catch(_) {}
+            }
+
+            // Global message listener for pause mode (works regardless of preloading setting)
+            window.addEventListener('message', (event) => {
+                try {
+                    const data = event.data;
+
+                    if (data && data.type === 'banner-ready') {
+                        // Check if pause mode is enabled and pause banner immediately
+                        let shouldPause = false;
+                        try {
+                            shouldPause = sessionStorage.getItem('preview-pause-mode') === 'true';
+                        } catch(e) {}
+
+                        if (shouldPause) {
+                            const iframe = [...iframesAll].find(el => {
+                                try {
+                                    return el.contentWindow === event.source;
+                                } catch(e) {
+                                    return false;
+                                }
+                            });
+
+                            if (iframe) {
+                                sendMessageToIframe(iframe, { type: 'control', action: 'pause', time: 0 });
+                                // Update UI for this specific banner
+                                setTimeout(() => {
+                                    const box = iframe.closest('.frame-box');
+                                    const btn = box && box.querySelector('.forward-btn');
+                                    if (btn) {
+                                        btn.classList.remove('is-playing');
+                                        const i = btn.querySelector('.bi');
+                                        if (i) i.className = 'bi bi-caret-right-fill';
+                                    }
+                                }, 50);
+                            }
+                        }
+                    }
+                } catch(e) {}
+            });
+
+            if (preloadingEnabled) {
+                // Set up postMessage listener IMMEDIATELY to catch banner-ready signals
+                window.addEventListener('message', (event) => {
+                    try {
+                        const data = event.data;
+
+                        if (data && data.type === 'banner-ready') {
+
+                            const iframe = [...iframesAll].find(el => {
+                                try {
+                                    return el.contentWindow === event.source;
+                                } catch(e) {
+                                    return false;
+                                }
+                            });
+
+                            if (iframe && !bannersReady.has(iframe)) {
+                                const iframeId = iframe.id || iframe.src || 'unknown';
+                                bannersReady.add(iframe);
+
+                                // Update loading progress display
+                                updateLoadingProgress();
+
+                                // Check if pause mode is enabled in storage
+                                let shouldPauseOnReady = false;
+                                try {
+                                    shouldPauseOnReady = sessionStorage.getItem('preview-pause-mode') === 'true';
+                                } catch(e) {}
+
+                                // Immediately pause this banner (either for sync mode or if pause mode is active)
+                                if (shouldPauseOnReady) {
+                                    sendMessageToIframe(iframe, { type: 'control', action: 'pause', time: 0 });
+                                } else {
+                                    // Still pause initially for preloading sync, but will restart later
+                                    sendMessageToIframe(iframe, { type: 'control', action: 'pause', time: 0 });
+                                }
+
+                                // Check if all banners are ready
+                                if (bannersReady.size >= iframesAll.length) {
+                                    // All banners are loaded and paused - reveal them
+                                    revealAllBanners();
+                                }
+                            }
+                        }
+                    } catch(e) {
+                    }
+                });
+
+                // FALLBACK: Poll banners for master timeline readiness (for cross-origin issues)
+                function checkBannerReadiness() {
+                    let newReadyCount = 0;
+
+                    iframesAll.forEach(iframe => {
+                        if (bannersReady.has(iframe)) {
+                            newReadyCount++;
+                            return; // Already ready
+                        }
+
+                        // On file:// protocol, avoid direct contentWindow access to prevent console errors
+                        if (!isFileProtocol) {
+                            try {
+                                // Try to access the master timeline directly
+                                if (iframe.contentWindow && iframe.contentWindow.master) {
+                                    bannersReady.add(iframe);
+                                    newReadyCount++;
+
+                                    // Update loading progress display
+                                    updateLoadingProgress();
+
+                                    // DON'T pause here - let it play naturally until we're ready to reveal all
+                                }
+                            } catch(e) {
+                                // Swallow access errors when not file:// as well
+                            }
+                        }
+
+                        try {
+                            // Cross-origin access blocked - this is expected on file:// protocol
+                            // Check if the iframe document has loaded and wait a bit more
+                            try {
+                                if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                                    // Document is loaded but we can't access the timeline due to cross-origin
+                                    // Use a timeout fallback for this iframe
+                                    setTimeout(() => {
+                                        if (!bannersReady.has(iframe)) {
+                                            bannersReady.add(iframe);
+                                            updateLoadingProgress();
+                                            // DON'T pause here either - let it play until reveal
+
+                                            if (bannersReady.size >= iframesAll.length) {
+                                                revealAllBanners();
+                                            }
+                                        }
+                                    }, 2000); // 2 second fallback
+                                }
+                            } catch(e2) {
+                                // Even document access is blocked
+                            }
+                        } catch(_e) {}
+                    });
+
+                    // Check if all banners are ready
+                    if (bannersReady.size >= iframesAll.length) {
+                        revealAllBanners();
+                    } else if (bannersReady.size < iframesAll.length) {
+                        // Continue polling
+                        setTimeout(checkBannerReadiness, 500);
+                    }
+                }
+
+                // Start polling after a short delay to let iframes load
+                setTimeout(checkBannerReadiness, 1000);
+
+                // Absolute safety net for local file previews: reveal after a longer delay to see shimmer
+                // Some browsers block any cross-frame inspection on file:// and can also drop postMessage.
+                // In that case, avoid hanging behind the shimmer and just reveal.
+                if (isFileProtocol) {
+                    const MAX_LOCAL_WAIT_MS = 5000; // ~5s after page load (longer to see shimmer in development)
+                    setTimeout(() => {
+                        try {
+                            if (bannersReady.size < iframesAll.length && !document.body.classList.contains('banners-ready')) {
+                                revealAllBanners();
+                            }
+                        } catch(_) {}
+                    }, MAX_LOCAL_WAIT_MS);
+                }
+            }
+
+            // Helper function to safely access iframe timeline
+            function safeGetTimeline(iframe) {
+                if (!iframe) return null;
+                if (isFileProtocol) return null; // Avoid cross-origin errors on file://
+                try {
+                    // Check if we can access the contentWindow (might fail on file:// protocol)
+                    if (iframe.contentWindow && iframe.contentWindow.master) {
+                        return iframe.contentWindow.master;
+                    }
+                } catch (e) {
+                    // Cross-origin access blocked - this is normal on file:// protocol
+                }
+                return null;
+            }
+
+            // postMessage-based timeline control for file:// protocol compatibility
+            function sendMessageToIframe(iframe, message) {
+                try {
+                    if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage(message, '*');
+                    }
+                } catch(e) {
+                    // Silently fail if cross-origin
+                }
+            }
+
+            function pauseAtZero(tl) {
+                try { if (tl) { tl.finalPause = false; tl.pause(0, false); } } catch(_) {}
+            }
+            // Function to update loading progress display
+            function updateLoadingProgress() {
+                if (!preloadingEnabled) return;
+                const loadingLabel = document.querySelector('.loading-overlay .loading-label');
+                if (loadingLabel && iframesAll.length > 0) {
+                    const readyCount = bannersReady.size;
+                    const totalCount = iframesAll.length;
+
+                    // Calculate progress percentage for spinner
+                    const progressPercent = Math.round((readyCount / totalCount) * 100);
+
+                    // Update spinner progress if there's a way to do it
+                    const spinner = document.querySelector('.loading-overlay .loading-spinner');
+                    if (spinner) {
+                        // Set CSS custom property for progress
+                        spinner.style.setProperty('--progress', `${progressPercent}%`);
+                    }
+
+                    // Keep just the base text without progress numbers
+                    const baseText = 'Loading banners…';
+
+                    // Find the text node and update it, or just replace all text content
+                    const textNodes = Array.from(loadingLabel.childNodes).filter(node => node.nodeType === Node.TEXT_NODE);
+                    if (textNodes.length > 0) {
+                        textNodes[textNodes.length - 1].textContent = ` ${baseText}`;
+                    } else {
+                        // Fallback: create new text node
+                        const textNode = document.createTextNode(` ${baseText}`);
+                        loadingLabel.appendChild(textNode);
+                    }
+                }
+            }
+
+            function revealAllBanners() {
+                if (!preloadingEnabled) {
+                    try { document.body.classList.add('banners-ready'); } catch(_) {}
+                    startAllBannersFromZero();
+                    return;
+                }
+                // Ensure shimmer is visible for a minimum duration (1.5 seconds)
+                // so users can see the loading state even with fast local files
+                const MIN_SHIMMER_DURATION = 1500; // milliseconds
+                const timeLoaded = Date.now();
+                const elapsedSincePageLoad = timeLoaded - (window.pageLoadTime || timeLoaded);
+                const remainingShimmerTime = Math.max(0, MIN_SHIMMER_DURATION - elapsedSincePageLoad);
+
+                setTimeout(() => {
+                    try { document.body.classList.add('banners-ready'); } catch(_) {}
+                    // Start all banners from zero when shimmer is removed
+                    startAllBannersFromZero();
+                }, remainingShimmerTime);
+            }
+            function startAllBannersFromZero() {
+                // Check if pause mode is enabled in storage
+                let shouldPause = false;
+                let savedTimes = {};
+                try {
+                    shouldPause = sessionStorage.getItem('preview-pause-mode') === 'true';
+                    const timesStr = sessionStorage.getItem('preview-banner-times');
+                    if (timesStr) {
+                        savedTimes = JSON.parse(timesStr);
+                    }
+                } catch(e) {}
+
+                iframesAll.forEach((iframe) => {
+                    try {
+                        const tl = safeGetTimeline(iframe);
+                        // Get iframe identifier from src - extract folder name before /index.html
+                        let iframeId = '';
+                        try {
+                            const url = new URL(iframe.src);
+                            const pathParts = url.pathname.split('/').filter(p => p);
+                            iframeId = pathParts[pathParts.length - 2] || '';
+                        } catch(_) {
+                            iframeId = iframe.src.split('/').filter(s => s).slice(-2, -1)[0] || '';
+                        }
+
+                        const savedTime = savedTimes[iframeId] || 0;
+
+                        if (tl) {
+                            tl.finalPause = false;
+                            if (shouldPause) {
+                                // Seek to saved time position, then pause
+                                tl.seek(savedTime, false);
+                                tl.pause();
+                            } else {
+                                tl.restart(); // Use restart instead of play(0) for more reliable starting
+                            }
+                        } else {
+                            // Fallback: use postMessage to control timeline
+                            if (shouldPause) {
+                                sendMessageToIframe(iframe, { type: 'control', action: 'pause', time: savedTime });
+                            } else {
+                                sendMessageToIframe(iframe, { type: 'control', action: 'restart' });
+                            }
+                        }
+                    } catch(e) {}
+                });
+                // Update UI after a short delay to ensure timeline states are settled
+                setTimeout(() => {
+                    updateForwardAllIcon();
+                    // Also update individual button states
+                    document.querySelectorAll('.forward-btn').forEach(btn => {
+                        const box = btn.closest('.frame-box');
+                        const iframe = box && box.querySelector('iframe');
+                        const tl = safeGetTimeline(iframe);
+                        updateForwardIcon(btn, tl);
+                    });
+                }, 100);
+            }
+            function pauseAllBannersAtZero() {
+                iframesAll.forEach((iframe) => {
+                    try {
+                        const tl = safeGetTimeline(iframe);
+                        if (tl) {
+                            pauseAtZero(tl);
+                        } else {
+                            // Fallback: use postMessage to control timeline
+                            sendMessageToIframe(iframe, { type: 'control', action: 'pause', time: 0 });
+                        }
+                    } catch(_) {}
+                });
+            }
+
+
+            function startAllFromZero() {
+                if (!preloadingEnabled) return;
+                if (syncStarted) return; syncStarted = true;
+                // In sync mode, we reveal and start simultaneously
+                revealAllBanners();
+            }
+            function markIframeReadyOnce(iframe) {
+                if (!preloadingEnabled) return;
+                if (iframe.__syncReady) return;
+                try {
+                    const tl = iframe.contentWindow && iframe.contentWindow.master;
+                    if (!tl) return; // not ready yet
+                    pauseAtZero(tl);
+                    iframe.__syncReady = true;
+                    syncReadyCount++;
+                    if (syncReadyCount >= iframesAll.length) {
+                        // Re-enable controls now that all are primed
+                        try { document.querySelectorAll('.forward-btn').forEach(b => b.classList.remove('is-disabled')); } catch(_) {}
+                        try { const a = document.querySelector('.topline .controls a.forward-all'); if (a) a.classList.remove('is-disabled'); } catch(_) {}
+                        startAllFromZero();
+                    }
+                } catch(_) {}
+            }
+            if (preloadingEnabled && syncStart && iframesAll.length) {
+                // Disable play controls until all iframes are ready
+                try { document.querySelectorAll('.forward-btn').forEach(b => b.classList.add('is-disabled')); } catch(_) {}
+                try { const a = document.querySelector('.topline .controls a.forward-all'); if (a) a.classList.add('is-disabled'); } catch(_) {}
+                // Try immediately and also on load + short poll to catch late masters
+                iframesAll.forEach((iframe) => {
+                    // Immediate attempt
+                    markIframeReadyOnce(iframe);
+                    // On load try again
+                    iframe.addEventListener('load', () => {
+                        // Small poll loop to catch master created after load
+                        let tries = 0; const t = setInterval(() => {
+                            tries++;
+                            markIframeReadyOnce(iframe);
+                            if (iframe.__syncReady || tries > #{bannerMaxPollAttempts}) clearInterval(t);
+                        }, #{bannerPollIntervalMs});
+                    }, { once: true });
+                    // Also initial short poll in case they were already loaded
+                    let tries0 = 0; const t0 = setInterval(() => {
+                        tries0++;
+                        markIframeReadyOnce(iframe);
+                        if (iframe.__syncReady || tries0 > #{bannerMaxPollAttempts}) clearInterval(t0);
+                    }, #{bannerPollIntervalMs});
+                });
+                // Safety: if some banner never exposes a master timeline, show loading indicator
+                // and allow manual override rather than auto-enabling after timeout
+                // Users can refresh if banners fail to load properly
+            } else if (preloadingEnabled && iframesAll.length) {
+                // Non-sync mode: purely event-driven banner loading
+                // Banners will be revealed only when ALL report ready via postMessage
+                // No timeout fallbacks - wait for actual banner-ready events
+
+                // Initialize loading progress display
+                updateLoadingProgress();
+            }
+
+            if ([...document.querySelectorAll('a.set, a.index')].length) {
+                let u = new URL(location.href);
+                let page_name = u.pathname.split('/').pop().replace('.html', '');
+
+                let setLinks = [...document.querySelectorAll('a.set, a.index')];
+                setLinks.forEach(a => a.classList.remove('is-active'));
+
+                // Try to find exact match first (for size-based pages)
+                let active = setLinks.find(a => {
+                    let href = a.getAttribute('href');
+                    if (!href) return false;
+                    let linkPage = href.split('/').pop().replace('.html', '');
+                    return linkPage === page_name;
+                });
+
+                // Fallback to class matching for set-based pages
+                if (!active) {
+                    active = setLinks.find(a => a.classList.contains(page_name) || (page_name === 'index' && a.classList.contains('index')));
+                }
+
+                if (!active) active = setLinks[0];
+                if (active) active.classList.add('is-active');
+
+                // Reset pause mode when clicking on set navigation links
+                setLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        try {
+                            sessionStorage.removeItem('preview-pause-mode');
+                            sessionStorage.removeItem('preview-banner-times');
+                        } catch(e) {}
+                    });
+                });
+            }
+
+            // Initialize pause mode state from storage
+            (function() {
+                const playPauseBtn = document.querySelector('.topline .controls a.forward-all');
+                if (!playPauseBtn) return;
+
+                // Load saved pause mode state
+                let isPaused = false;
+                try {
+                    isPaused = sessionStorage.getItem('preview-pause-mode') === 'true';
+                } catch(e) {}
+
+                // If paused mode is stored, update the initial UI
+                if (isPaused) {
+                    const i = playPauseBtn.querySelector('i.bi');
+                    if (i) {
+                        i.className = 'bi bi-caret-right-fill';
+                        playPauseBtn.setAttribute('aria-label', 'Play all');
+                        playPauseBtn.setAttribute('data-label', 'Play');
+                        playPauseBtn.classList.remove('is-playing');
+                    }
+                    // Also update overlay buttons to match
+                    document.querySelectorAll('.forward-btn').forEach(btn => {
+                        btn.classList.remove('is-playing');
+                        const btnIcon = btn.querySelector('.bi');
+                        if (btnIcon) btnIcon.className = 'bi bi-caret-right-fill';
+                    });
+                }
+            })();
+
+            // Preserve setsline scroll position across navigation
+            (function() {
+                const setsline = document.querySelector('.setsline');
+                const SCROLL_STORAGE_KEY = 'setsline-scroll-position';
+
+                if (!setsline) return;
+
+                // Restore scroll position after a brief delay to prevent scrollbar flash
+                try {
+                    const savedScroll = sessionStorage.getItem(SCROLL_STORAGE_KEY);
+                    if (savedScroll !== null) {
+                        const scrollPos = parseInt(savedScroll, 10);
+                        if (!isNaN(scrollPos)) {
+                            // Hide scrollbar temporarily
+                            setsline.classList.add('loading-scroll');
+                            // Use requestAnimationFrame to wait for layout to be ready
+                            requestAnimationFrame(() => {
+                                requestAnimationFrame(() => {
+                                    setsline.scrollLeft = scrollPos;
+                                    // Show scrollbar again after scroll position is set
+                                    setTimeout(() => {
+                                        setsline.classList.remove('loading-scroll');
+                                    }, 50);
+                                });
+                            });
+                        }
+                    }
+                } catch(e) {}
+
+                // Save scroll position when clicking navigation links
+                const navLinks = setsline.querySelectorAll('a.set, a.index');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        try {
+                            sessionStorage.setItem(SCROLL_STORAGE_KEY, setsline.scrollLeft.toString());
+                        } catch(e) {}
+                    });
+                });
+
+                // Also save scroll position periodically while scrolling
+                let scrollTimeout;
+                setsline.addEventListener('scroll', function() {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(function() {
+                        try {
+                            sessionStorage.setItem(SCROLL_STORAGE_KEY, setsline.scrollLeft.toString());
+                        } catch(e) {}
+                    }, 150);
+                });
+            })();
+            ;
+            // Update year in footer
+            var y = document.getElementById('year');
+            if (y) y.textContent = new Date().getFullYear();
+
+            // Iframe buttons toggle functionality
+            (function() {
+                const toggleBtn = document.querySelector('.iframe-controls-toggle');
+                const toggleIcon = toggleBtn && toggleBtn.querySelector('.bi');
+                const STORAGE_KEY = 'iframe-controls-hidden';
+
+                if (!toggleBtn || !toggleIcon) return;
+
+                // Function to update button state
+                function updateToggleState(isHidden) {
+                    if (isHidden) {
+                        document.body.classList.add('iframe-controls-hidden');
+                        toggleIcon.className = 'bi bi-eye-slash-fill';
+                        toggleBtn.setAttribute('data-label', 'Show iframe buttons');
+                        // Store state in session storage
+                        try {
+                            sessionStorage.setItem(STORAGE_KEY, 'true');
+                        } catch(e) {}
+                    } else {
+                        document.body.classList.remove('iframe-controls-hidden');
+                        toggleIcon.className = 'bi bi-eye-fill';
+                        toggleBtn.setAttribute('data-label', 'Hide iframe buttons');
+                        // Remove from session storage
+                        try {
+                            sessionStorage.removeItem(STORAGE_KEY);
+                        } catch(e) {}
+                    }
+                }
+
+                // Load saved state from session storage
+                let isHidden = false;
+                try {
+                    isHidden = sessionStorage.getItem(STORAGE_KEY) === 'true';
+                } catch(e) {}
+
+                // Apply initial state
+                updateToggleState(isHidden);
+
+                // Toggle functionality
+                toggleBtn.addEventListener('click', function() {
+                    const currentlyHidden = document.body.classList.contains('iframe-controls-hidden');
+                    updateToggleState(!currentlyHidden);
+
+                    // Add visual feedback
+                    toggleBtn.classList.add('active');
+                    setTimeout(() => {
+                        toggleBtn.classList.remove('active');
+                    }, #{buttonFeedbackMs});
+                });
+
+                // Add keyboard support
+                toggleBtn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleBtn.click();
+                    }
+                });
+
+                // Make it focusable
+                toggleBtn.setAttribute('tabindex', '0');
+            })();
+
+            // Dark theme toggle functionality
+            (function() {
+                const toggleBtn = document.querySelector('.dark-theme-toggle');
+                const toggleIcon = toggleBtn && toggleBtn.querySelector('.bi');
+                const STORAGE_KEY = 'dark-theme-enabled';
+
+                if (!toggleBtn || !toggleIcon) return;
+
+                // Function to update theme state
+                function updateThemeState(isDark) {
+                    const themeColorMeta = document.getElementById('theme-color-meta');
+
+                    if (isDark) {
+                        document.body.classList.add('dark-theme');
+                        toggleIcon.className = 'bi bi-sun-fill';
+                        toggleBtn.setAttribute('data-label', 'Switch to light theme');
+
+                        // Update Safari theme color for dark theme
+                        if (themeColorMeta) {
+                            themeColorMeta.setAttribute('content', '#161616');
+                        }
+
+                        // Store state in session storage
+                        try {
+                            sessionStorage.setItem(STORAGE_KEY, 'true');
+                        } catch(e) {}
+                    } else {
+                        document.body.classList.remove('dark-theme');
+                        toggleIcon.className = 'bi bi-moon-fill';
+                        toggleBtn.setAttribute('data-label', 'Switch to dark theme');
+
+                        // Update Safari theme color for light theme
+                        if (themeColorMeta) {
+                            themeColorMeta.setAttribute('content', '#{headerColor}');
+                        }
+
+                        // Remove from session storage
+                        try {
+                            sessionStorage.removeItem(STORAGE_KEY);
+                        } catch(e) {}
+                    }
+                }
+
+                // Load saved state from session storage
+                let isDark = false;
+                try {
+                    isDark = sessionStorage.getItem(STORAGE_KEY) === 'true';
+                } catch(e) {}
+
+                // Apply initial state
+                updateThemeState(isDark);
+
+                // Toggle functionality
+                toggleBtn.addEventListener('click', function() {
+                    const currentlyDark = document.body.classList.contains('dark-theme');
+                    updateThemeState(!currentlyDark);
+
+                    // Add visual feedback
+                    toggleBtn.classList.add('active');
+                    setTimeout(() => {
+                        toggleBtn.classList.remove('active');
+                    }, #{buttonFeedbackMs});
+                });
+
+                // Add keyboard support
+                toggleBtn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleBtn.click();
+                    }
+                });
+
+                // Make it focusable
+                toggleBtn.setAttribute('tabindex', '0');
+            })();
+
+            // Simple download popup functionality
+            (function() {
+                const wrapper = document.querySelector('.download-popup-wrapper');
+                const btn = wrapper && wrapper.querySelector('.download-main-btn');
+
+                if (!wrapper || !btn) return;
+
+                let hoverTimeout;
+
+                // Show on hover
+                wrapper.addEventListener('mouseenter', function() {
+                    clearTimeout(hoverTimeout);
+                    wrapper.classList.add('active');
+                });
+
+                // Hide on mouse leave with delay
+                wrapper.addEventListener('mouseleave', function() {
+                    hoverTimeout = setTimeout(function() {
+                        wrapper.classList.remove('active');
+                    }, 100);
+                });
+
+                // Toggle popup on click/touch
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    clearTimeout(hoverTimeout);
+                    wrapper.classList.toggle('active');
+                });
+
+                // Close when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!wrapper.contains(e.target)) {
+                        wrapper.classList.remove('active');
+                    }
+                });
+
+                // Close on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        wrapper.classList.remove('active');
+                    }
+                });
+            })();
+
+            // Lightweight click feedback on per-iframe overlay buttons
+            try {
+                // Unify hover/press feedback across mouse, touch, and pen
+                function addUnifiedHover(el) {
+                    if (!el) return;
+                    let tId;
+                    const add = () => { try { el.classList.add('is-hover'); } catch(_) {} };
+                    const remove = () => { try { el.classList.remove('is-hover'); } catch(_) {} };
+                    el.addEventListener('pointerenter', add);
+                    el.addEventListener('pointerleave', remove);
+                    el.addEventListener('touchstart', () => {
+                        add();
+                        clearTimeout(tId);
+                        tId = setTimeout(remove, 800);
+                    }, { passive: true });
+                }
+                function addActiveClick(el) {
+                    if (!el) return;
+                    const add = () => { try { el.classList.add('active-click'); } catch(_) {} };
+                    const remove = () => { try { el.classList.remove('active-click'); } catch(_) {} };
+                    el.addEventListener('pointerdown', add);
+                    el.addEventListener('pointerup', remove);
+                    el.addEventListener('pointerleave', remove);
+                    el.addEventListener('pointercancel', remove);
+                    el.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') add(); });
+                    el.addEventListener('keyup', remove);
+                }
+
+                // Apply to header controls
+                document.querySelectorAll('.topline .controls a').forEach((a) => {
+                    addUnifiedHover(a);
+                    addActiveClick(a);
+                });
+
+                // Apply to overlay controls on each iframe
+                document.querySelectorAll('.download-btn, .restart-btn, .forward-btn').forEach((btn) => {
+                    addUnifiedHover(btn);
+                    addActiveClick(btn);
+                });
+
+                // Helper: consider timeline "ended" if paused and remaining time <= threshold (seconds)
+                function isNearEnd(tl, seconds = 1) {
+                    try {
+                        // Use single-cycle duration/time to avoid repeat effects
+                        const total = typeof tl.totalDuration === 'function' ? tl.totalDuration() : (typeof tl.duration === 'function' ? tl.duration() : 0);
+                        const current = typeof tl.time === 'function' ? tl.time() : 0;
+                        const remaining = total - current;
+                        return !!tl && tl.paused() && remaining <= (seconds + 0.05); // small fudge
+                    } catch (_) { return false; }
+                }
+
+                // Hard restart that preserves recorded start/end values
+                function hardRestart(tl) {
+                    try {
+                        if (!tl) return;
+                        tl.finalPause = false;
+                        if (typeof tl.restart === 'function') tl.restart(0, false);
+                    } catch (_) {}
+                }
+
+                document.querySelectorAll('.download-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btn.classList.add('active-click');
+                        setTimeout(() => btn.classList.remove('active-click'), 180);
+                        // avoid keeping focus so it won't persist
+                        setTimeout(() => btn.blur(), 0);
+                    });
+                });
+                document.querySelectorAll('.restart-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        btn.classList.add('active-click');
+                        setTimeout(() => btn.classList.remove('active-click'), 180);
+                        setTimeout(() => btn.blur(), 0);
+                        // spin the icon for visual feedback
+                        var icon = btn.querySelector('.bi');
+                        if (icon) {
+                            icon.classList.add('spin');
+                            icon.addEventListener('animationend', () => icon.classList.remove('spin'), { once: true });
+                        }
+                        var box = btn.closest('.frame-box');
+                        var iframe = box && box.querySelector('iframe');
+                        if (iframe) {
+                            try {
+                                const tl = safeGetTimeline(iframe);
+                                if (tl) {
+                                    // Clear any finalPause flag and restart from beginning
+                                    tl.finalPause = false;
+                                    tl.restart();
+
+                                    // Update overlay button state
+                                    const forwardBtn = box && box.querySelector('.forward-btn');
+                                    if (forwardBtn) {
+                                        forwardBtn.classList.add('is-playing');
+                                        const i = forwardBtn.querySelector('.bi');
+                                        if (i) i.className = 'bi bi-pause-fill';
+                                    }
+                                } else {
+                                    // Fallback: use postMessage for cross-origin or file:// protocol
+                                    sendMessageToIframe(iframe, { type: 'control', action: 'restart' });
+
+                                    // Update overlay button state
+                                    const forwardBtn = box && box.querySelector('.forward-btn');
+                                    if (forwardBtn) {
+                                        forwardBtn.classList.add('is-playing');
+                                        const i = forwardBtn.querySelector('.bi');
+                                        if (i) i.className = 'bi bi-pause-fill';
+                                    }
+                                }
+                            } catch (e) {
+                                // If timeline restart fails, fall back to reload as last resort
+                                if (preloadingEnabled && box) {
+                                    box.classList.add('restarting');
+                                }
+                                try {
+                                    var url = new URL(iframe.src, window.location.href);
+                                    url.searchParams.set('v', Date.now());
+                                    iframe.src = url.toString();
+                                } catch (_) {
+                                    iframe.src = iframe.src.split('?')[0] + '?v=' + Date.now();
+                                }
+                                if (preloadingEnabled && box) {
+                                    iframe.addEventListener('load', () => {
+                                        box.classList.remove('restarting');
+                                    }, { once: true });
+                                }
+                            }
+                        }
+                    });
+                });
+
+                // Play/Pause overlay per iframe
+                function updateForwardIcon(btn, tl) {
+                    try {
+                        const i = btn.querySelector('.bi');
+                        if (!i) return;
+                        // If timeline not ready yet, show Pause icon and playing color immediately
+                        if (!tl) { i.className = 'bi bi-pause-fill'; btn.setAttribute('aria-label', 'Pause banner'); btn.classList.add('is-playing'); return; }
+                        // Consider ended only when banner flagged a final-pause gate
+                        const ended = (tl && tl.finalPause === true);
+                        const playingForward = tl.isActive() && !tl.paused() && !tl.reversed();
+                        if (ended) {
+                            i.className = 'bi bi-caret-right-fill';
+                            btn.setAttribute('aria-label', 'Play banner');
+                            btn.classList.remove('is-playing');
+                        } else if (playingForward) {
+                            i.className = 'bi bi-pause-fill';
+                            btn.setAttribute('aria-label', 'Pause banner');
+                            btn.classList.add('is-playing');
+                        } else {
+                            i.className = 'bi bi-caret-right-fill';
+                            btn.setAttribute('aria-label', 'Play banner');
+                            btn.classList.remove('is-playing');
+                        }
+                    } catch (e) {}
+                }
+
+
+
+                document.querySelectorAll('.forward-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        setTimeout(() => btn.blur(), 0);
+                        const box = btn.closest('.frame-box');
+                        const iframe = box && box.querySelector('iframe');
+                        // On file:// protocol, control via postMessage without touching timeline
+                        if (isFileProtocol) {
+                            const i = btn.querySelector('.bi');
+                            const isPlaying = btn.classList.contains('is-playing');
+                            if (iframe) {
+                                sendMessageToIframe(iframe, { type: 'control', action: isPlaying ? 'pause' : 'restart' });
+                            }
+                            if (i) {
+                                if (isPlaying) {
+                                    i.className = 'bi bi-caret-right-fill';
+                                    btn.setAttribute('aria-label', 'Play banner');
+                                    btn.classList.remove('is-playing');
+                                } else {
+                                    i.className = 'bi bi-pause-fill';
+                                    btn.setAttribute('aria-label', 'Pause banner');
+                                    btn.classList.add('is-playing');
+                                }
+                            }
+                            try { updateForwardAllIcon(); } catch(_) {}
+                            // Update pause mode in storage based on overall state
+                            setTimeout(() => {
+                                try {
+                                    const anyPlaying = !!document.querySelector('.forward-btn.is-playing');
+                                    if (anyPlaying) {
+                                        sessionStorage.removeItem('preview-pause-mode');
+                                    } else {
+                                        sessionStorage.setItem('preview-pause-mode', 'true');
+                                    }
+                                } catch(_) {}
+                            }, 50);
+                            return;
+                        }
+                        if (iframe && iframe.contentWindow) {
+                            try {
+                                const w = iframe.contentWindow;
+                                const tl = w.master;
+                                if (tl) {
+                                    const ended = (tl && tl.finalPause === true);
+                                    if (ended) {
+                                        try { tl.finalPause = false; } catch(_) {}
+                                        // Reload iframe like header control to guarantee pristine restart
+                                        try {
+                                            const url = new URL(iframe.src, window.location.href);
+                                            url.searchParams.set('v', Date.now());
+                                            iframe.src = url.toString();
+                                        } catch (_) {
+                                            iframe.src = iframe.src.split('?')[0] + '?v=' + Date.now();
+                                        }
+                                    }
+                                    else if (tl.paused()) tl.play();
+                                    else tl.pause();
+                                    updateForwardIcon(btn, tl);
+                                    // Keep header play/pause state in sync immediately
+                                    try { updateForwardAllIcon(); } catch(_) {}
+                                    // Update pause mode in storage based on overall state
+                                    setTimeout(() => {
+                                        try {
+                                            let anyPlaying = false;
+                                            document.querySelectorAll('.frame-box iframe').forEach((iframe) => {
+                                                try {
+                                                    const tl = iframe.contentWindow && iframe.contentWindow.master;
+                                                    if (tl && tl.isActive() && !tl.paused() && !tl.reversed()) anyPlaying = true;
+                                                } catch (e) {}
+                                            });
+                                            if (anyPlaying) {
+                                                sessionStorage.removeItem('preview-pause-mode');
+                                            } else {
+                                                sessionStorage.setItem('preview-pause-mode', 'true');
+                                            }
+                                        } catch(_) {}
+                                    }, 50);
+
+                                    return;
+                                }
+                            } catch (err) {}
+                        }
+                    });
+                });
+
+
+
+                // Header Forward (Play/Pause) all management
+                const playPauseAll = document.querySelector('.topline .controls a.forward-all');
+                function updateForwardAllIcon(preferTimeline = false) {
+                    if (!playPauseAll) return;
+                    const i = playPauseAll.querySelector('i.bi');
+                    if (!i) return;
+                    let anyForwardPlaying = false;
+                    let foundAny = false;
+                    if (preferTimeline && !isFileProtocol) {
+                        // Use authoritative timeline states
+                        document.querySelectorAll('.frame-box iframe').forEach((iframe) => {
+                            try {
+                                const tl = iframe.contentWindow && iframe.contentWindow.master;
+                                if (!tl) return;
+                                foundAny = true;
+                                const active = tl.isActive();
+                                if (active && !tl.paused() && !tl.reversed()) anyForwardPlaying = true;
+                            } catch (e) {}
+                        });
+                        if (!foundAny) return;
+                    } else {
+                        // Prefer overlay state (fast, reflects immediate user action)
+                        const overlayBtns = document.querySelectorAll('.forward-btn');
+                        foundAny = overlayBtns.length > 0;
+                        if (foundAny) {
+                            anyForwardPlaying = !!document.querySelector('.forward-btn.is-playing');
+                        } else {
+                            // Fallback to timelines
+                            if (!isFileProtocol) {
+                                document.querySelectorAll('.frame-box iframe').forEach((iframe) => {
+                                    try {
+                                        const tl = iframe.contentWindow && iframe.contentWindow.master;
+                                        if (!tl) return;
+                                        foundAny = true;
+                                        const active = tl.isActive();
+                                        if (active && !tl.paused() && !tl.reversed()) anyForwardPlaying = true;
+                                    } catch (e) {}
+                                });
+                            }
+                            if (!foundAny) return;
+                        }
+                    }
+                    // No disabled state: toggle only between Play/Pause
+                    if (anyForwardPlaying) {
+                        i.className = 'bi bi-pause-fill';
+                        playPauseAll.setAttribute('aria-label', 'Pause all');
+                        playPauseAll.setAttribute('data-label', 'Pause');
+                        playPauseAll.classList.add('is-playing');
+                    } else {
+                        i.className = 'bi bi-caret-right-fill';
+                        playPauseAll.setAttribute('aria-label', 'Play all');
+                        playPauseAll.setAttribute('data-label', 'Play');
+                        playPauseAll.classList.remove('is-playing');
+                        // Ensure any transient hover/press class doesn't keep label visible
+                        playPauseAll.classList.remove('is-hover', 'active-click');
+                    }
+                }
+
+                if (playPauseAll) {
+                    playPauseAll.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        let anyForwardPlaying = false, anyForwardPaused = false, allEnded = true, allAtStart = true;
+                        const iframes = document.querySelectorAll('.frame-box iframe');
+                        // file:// protocol: drive via overlay state + postMessage only
+                        if (isFileProtocol) {
+                            const overlayBtns = document.querySelectorAll('.forward-btn');
+                            anyForwardPlaying = !!document.querySelector('.forward-btn.is-playing');
+                            iframes.forEach((iframe, idx) => {
+                                const correspondingBtn = overlayBtns[idx];
+                                if (!iframe || !correspondingBtn) return;
+                                const playing = correspondingBtn.classList.contains('is-playing');
+                                if (anyForwardPlaying) {
+                                    // Pause all
+                                    sendMessageToIframe(iframe, { type: 'control', action: 'pause' });
+                                    correspondingBtn.classList.remove('is-playing');
+                                    const ic = correspondingBtn.querySelector('.bi'); if (ic) ic.className = 'bi bi-caret-right-fill';
+                                } else {
+                                    // Restart all for consistent start
+                                    sendMessageToIframe(iframe, { type: 'control', action: 'restart' });
+                                    correspondingBtn.classList.add('is-playing');
+                                    const ic = correspondingBtn.querySelector('.bi'); if (ic) ic.className = 'bi bi-pause-fill';
+                                }
+                            });
+                            // Update header icon state immediately and save pause state
+                            try {
+                                const i = playPauseAll.querySelector('i.bi');
+                                if (i) {
+                                    if (anyForwardPlaying) {
+                                        i.className = 'bi bi-caret-right-fill';
+                                        playPauseAll.setAttribute('aria-label', 'Play all');
+                                        playPauseAll.setAttribute('data-label', 'Play');
+                                        playPauseAll.classList.remove('is-playing');
+                                        // Store paused state
+                                        try { sessionStorage.setItem('preview-pause-mode', 'true'); } catch(_) {}
+                                    } else {
+                                        i.className = 'bi bi-pause-fill';
+                                        playPauseAll.setAttribute('aria-label', 'Pause all');
+                                        playPauseAll.setAttribute('data-label', 'Pause');
+                                        playPauseAll.classList.add('is-playing');
+                                        // Store playing state
+                                        try { sessionStorage.removeItem('preview-pause-mode'); } catch(_) {}
+                                    }
+                                }
+                            } catch(_) {}
+                            return;
+                        }
+                        iframes.forEach((iframe) => {
+                            try {
+                                if (isFileProtocol) { throw new Error('skip-timeline-on-file'); }
+                                const tl = iframe.contentWindow && iframe.contentWindow.master;
+                                if (!tl) return;
+                                const active = tl.isActive();
+                                const ended = (tl && tl.finalPause === true);
+                                const p = (typeof tl.totalProgress === 'function') ? tl.totalProgress() : tl.progress();
+                                const atStart = (p <= 0) && !active;
+                                if (!ended) allEnded = false;
+                                if (!atStart) allAtStart = false;
+                                if (active && !tl.paused() && !tl.reversed()) anyForwardPlaying = true;
+                                else if (tl.paused() && !tl.reversed() && !ended && !atStart) anyForwardPaused = true;
+                            } catch (e) {}
+                        });
+                        const bannerTimes = {};
+                        iframes.forEach((iframe, idx) => {
+                            try {
+                                if (isFileProtocol) { throw new Error('skip-timeline-on-file'); }
+                                const tl = iframe.contentWindow && iframe.contentWindow.master;
+                                if (!tl) return;
+                                const active = tl.isActive();
+                                const ended = (tl && tl.finalPause === true);
+                                const p = (typeof tl.totalProgress === 'function') ? tl.totalProgress() : tl.progress();
+                                const atStart = (p <= 0) && !active;
+
+                                // Get iframe identifier from src - extract folder name before /index.html
+                                let iframeId = '';
+                                try {
+                                    const url = new URL(iframe.src);
+                                    const pathParts = url.pathname.split('/').filter(p => p);
+                                    iframeId = pathParts[pathParts.length - 2] || '';
+                                } catch(_) {
+                                    iframeId = iframe.src.split('/').filter(s => s).slice(-2, -1)[0] || '';
+                                }
+
+                                if (anyForwardPlaying) {
+                                    // Save current time position before pausing
+                                    const currentTime = typeof tl.time === 'function' ? tl.time() : 0;
+                                    if (iframeId) {
+                                        bannerTimes[iframeId] = currentTime;
+                                    }
+                                    tl.pause();
+                                } else if (allEnded || ended) {
+                                    // Full refresh ensures pristine state; avoids tail resume/corruption
+                                    try {
+                                        tl.finalPause = false;
+                                    } catch(_) {}
+                                    try {
+                                        const url = new URL(iframe.src, window.location.href);
+                                        url.searchParams.set('v', Date.now());
+                                        iframe.src = url.toString();
+                                    } catch (_) {
+                                        iframe.src = iframe.src.split('?')[0] + '?v=' + Date.now();
+                                    }
+                                } else {
+                                    tl.play();
+                                }
+                            } catch (e) {}
+                        });
+                        // Snap header UI immediately based on our intent and save pause state
+                        try {
+                            const i = playPauseAll.querySelector('i.bi');
+                            if (i) {
+                                if (anyForwardPlaying) {
+                                    // We just paused all -> show Play state, base color
+                                    i.className = 'bi bi-caret-right-fill';
+                                    playPauseAll.setAttribute('aria-label', 'Play all');
+                                    playPauseAll.setAttribute('data-label', 'Play');
+                                    playPauseAll.classList.remove('is-playing');
+                                    // Store paused state and banner time positions
+                                    try {
+                                        sessionStorage.setItem('preview-pause-mode', 'true');
+                                        sessionStorage.setItem('preview-banner-times', JSON.stringify(bannerTimes));
+
+                                        // Show pause mode notification
+                                        const pauseNotice = document.getElementById('pause-mode-notice');
+                                        if (pauseNotice) {
+                                            pauseNotice.style.display = 'block';
+                                            setTimeout(() => {
+                                                if (pauseNotice.style.display !== 'none') {
+                                                    pauseNotice.style.display = 'none';
+                                                }
+                                            }, 3000);
+                                        }
+                                    } catch(_) {}
+                                } else {
+                                    // We just started playing -> show Pause state, hover color
+                                    i.className = 'bi bi-pause-fill';
+                                    playPauseAll.setAttribute('aria-label', 'Pause all');
+                                    playPauseAll.setAttribute('data-label', 'Pause');
+                                    playPauseAll.classList.add('is-playing');
+                                    // Store playing state and clear time positions
+                                    try {
+                                        sessionStorage.removeItem('preview-pause-mode');
+                                        sessionStorage.removeItem('preview-banner-times');
+
+                                        // Hide pause mode notification
+                                        const pauseNotice = document.getElementById('pause-mode-notice');
+                                        if (pauseNotice) pauseNotice.style.display = 'none';
+                                    } catch(_) {}
+                                }
+                            }
+                        } catch(_) {}
+                        // Then reconcile using timeline states
+                        updateForwardAllIcon(true);
+                        // Clear transient hover/press/focus to hide label promptly
+                        try { playPauseAll.classList.remove('is-hover', 'active-click'); } catch(_) {}
+                        try { setTimeout(() => playPauseAll.blur(), 0); } catch(_) {}
+                    });
+                }
+
+                // (Reverse-all removed)
+
+                // Keep overlay and header icons in sync periodically
+                setInterval(() => {
+                    // Only try to sync if we're not on file:// protocol to avoid spam
+                    if (isFileProtocol) return;
+
+                    document.querySelectorAll('.forward-btn').forEach(btn => {
+                        const box = btn.closest('.frame-box');
+                        const iframe = box && box.querySelector('iframe');
+                        const tl = safeGetTimeline(iframe);
+                        updateForwardIcon(btn, tl);
+                    });
+                    updateForwardAllIcon();
+                    // (Reverse overlay/header updates removed)
+                }, 500);
+
+                // Header "Download all" button: apply same pressed feedback
+                document.querySelectorAll('.topline .controls a[download]').forEach(a => {
+                    a.addEventListener('click', () => {
+                        a.classList.add('active-click');
+                        setTimeout(() => a.classList.remove('active-click'), 180);
+                        const i = a.querySelector('i.bi');
+                        if (i) {
+                            i.classList.add('press');
+                            setTimeout(() => i.classList.remove('press'), 180);
+                        }
+                    });
+                });
+
+                // Header "Restart all" button: restart all visible iframes' master timelines
+                const restartAll = document.querySelector('.topline .controls a.restart-all');
+                if (restartAll) {
+                    restartAll.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        restartAll.classList.add('active-click');
+                        setTimeout(() => restartAll.classList.remove('active-click'), 180);
+                        const icon = restartAll.querySelector('i.bi');
+                        if (icon) {
+                            icon.classList.add('spin');
+                            icon.addEventListener('animationend', () => icon.classList.remove('spin'), { once: true });
+                        }
+
+                        // On file:// protocol, use postMessage to restart banners
+                        if (isFileProtocol) {
+                            document.querySelectorAll('.frame-box iframe').forEach((iframe) => {
+                                sendMessageToIframe(iframe, { type: 'control', action: 'restart' });
+                                // Update overlay button state
+                                const box = iframe.closest('.frame-box');
+                                const btn = box && box.querySelector('.forward-btn');
+                                if (btn) {
+                                    btn.classList.add('is-playing');
+                                    const i = btn.querySelector('.bi');
+                                    if (i) i.className = 'bi bi-pause-fill';
+                                }
+                            });
+                            updateForwardAllIcon();
+                            return;
+                        }
+
+                        // Clear pause mode when restarting
+                        try {
+                            sessionStorage.removeItem('preview-pause-mode');
+                            sessionStorage.removeItem('preview-banner-times');
+                            // Hide pause mode notification if visible
+                            const pauseNotice = document.getElementById('pause-mode-notice');
+                            if (pauseNotice) pauseNotice.style.display = 'none';
+                        } catch(_) {}
+
+                        const iframes = document.querySelectorAll('.frame-box iframe');
+
+                        // Restart all timelines without reloading iframes
+                        iframes.forEach((iframe) => {
+                            if (!iframe) return;
+
+                            try {
+                                const tl = safeGetTimeline(iframe);
+                                if (tl) {
+                                    // Clear any finalPause flag and restart from beginning
+                                    tl.finalPause = false;
+                                    tl.restart();
+                                } else {
+                                    // Fallback: use postMessage for cross-origin or file:// protocol
+                                    sendMessageToIframe(iframe, { type: 'control', action: 'restart' });
+                                }
+
+                                // Update overlay button state
+                                const box = iframe.closest('.frame-box');
+                                const btn = box && box.querySelector('.forward-btn');
+                                if (btn) {
+                                    btn.classList.add('is-playing');
+                                    const i = btn.querySelector('.bi');
+                                    if (i) i.className = 'bi bi-pause-fill';
+                                }
+                            } catch (e) {
+                                // If timeline restart fails, fall back to reload
+                                try {
+                                    const url = new URL(iframe.src, window.location.href);
+                                    url.searchParams.set('v', Date.now());
+                                    iframe.src = url.toString();
+                                } catch (_) {
+                                    iframe.src = iframe.src.split('?')[0] + '?v=' + Date.now();
+                                }
+                            }
+                        });
+
+                        // Update header play/pause icon
+                        setTimeout(() => {
+                            updateForwardAllIcon();
+                        }, 100);
+                    });
+                }
+            } catch (e) {}
+        });
+    //- Inject ZIP sizes into size labels when zip files are present (silently skip during development)
+    script.
+        (function () {
+            function updateSizeLabels(files) {
+                try {
+                    var fileKeys = Object.keys(files || {});
+                    var hasFiles = fileKeys.length > 0;
+
+                    document.querySelectorAll('.frame .size').forEach(function (el) {
+                        try {
+                            // Skip if we already have a zip size set
+                            if (el.getAttribute('data-zip-size')) return;
+
+                            var frame = el.closest('.frame');
+                            var iframe = frame && frame.querySelector('iframe');
+
+                            // Extract full folder name from iframe src for accurate zip matching
+                            var folderName = '';
+                            if (iframe && iframe.src) {
+                                try {
+                                    var url = new URL(iframe.src, window.location.href);
+                                    var pathParts = url.pathname.split('/').filter(function(p) { return p; });
+                                    // folder is second-to-last (before index.html)
+                                    folderName = pathParts[pathParts.length - 2] || '';
+                                } catch(_) {
+                                    folderName = iframe.src.split('/').filter(function(s) { return s; }).slice(-2, -1)[0] || '';
+                                }
+                            }
+
+                            // Get display base (dimension like 300x250)
+                            var base = (el.getAttribute('data-base') || '').trim();
+                            if (!base) {
+                                base = (el.textContent || '').trim().split(' · ')[0];
+                            }
+
+                            // Extract explicit size token if present
+                            var m = String(base || folderName).match(/(\d{2,4}x\d{2,4})/);
+                            var sizeToken = m ? m[1] : base;
+
+                            var label = '?? KB'; // Default fallback
+
+                            if (hasFiles) {
+                                // First try exact folder name match for unique banner identification
+                                var matchedKey = folderName ? fileKeys.find(function (k) { return k === folderName + '.zip'; }) : null;
+                                // Fallback to size token match only if no exact match
+                                if (!matchedKey && sizeToken) {
+                                    matchedKey = fileKeys.find(function (k) { return k.endsWith(sizeToken + '.zip'); });
+                                }
+                                if (matchedKey) {
+                                    var bytes = files[matchedKey];
+                                    if (typeof bytes !== 'number') {
+                                        // Handle string values like "?? KB" from placeholder files
+                                        label = String(bytes);
+                                    } else if (bytes > 0) {
+                                        var kb = Math.round(bytes / 10.24) / 100; // two decimals
+                                        label = kb.toFixed(2) + ' KB';
+                                    }
+                                }
+                            }
+
+                            el.setAttribute('data-zip-size', label);
+                            // store the resolved base as the sizeToken (so compose will use it)
+                            if (sizeToken) el.setAttribute('data-base', sizeToken);
+
+                            // Trigger recomposition of the size label
+                            if (frame && typeof window.tryUpdate === 'function') {
+                                window.tryUpdate(frame);
+                            }
+                        } catch (_) {}
+                    });
+                } catch (_) {}
+            }
+
+            // Apply size data if available (after gulp zip creates banner-sizes.js)
+            window.applyBannerSizes = function() {
+                if (window.BANNER_SIZES && typeof window.BANNER_SIZES === 'object') {
+                    updateSizeLabels(window.BANNER_SIZES);
+                } else {
+                    // No banner size data available, apply placeholder sizes
+                    updateSizeLabels({});
+                }
+            };
+
+            // Try to load banner sizes from the auto-generated file
+            function loadBannerSizes() {
+                // Use fetch with no-store and silent handling so 404s don't log as console errors
+                var url = 'banner-sizes.js?v=' + Date.now();
+                if (window.fetch) {
+                    fetch(url, { cache: 'no-store' })
+                        .then(function (res) {
+                            if (!res.ok) return null; // 404 or other -> silently skip
+                            return res.text();
+                        })
+                        .then(function (txt) {
+                            if (!txt) { window.applyBannerSizes(); return; }
+                            try {
+                                eval(txt); // banner-sizes.js will call window.applyBannerSizes()
+                            } catch (_) {
+                                window.applyBannerSizes();
+                            }
+                        })
+                        .catch(function () { // Network or CORS error: stay silent
+                            window.applyBannerSizes();
+                        });
+                } else {
+                    // XHR fallback (older browsers). Keep silent and avoid console errors.
+                    try {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('GET', url, true);
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === 4) {
+                                if (xhr.status === 200) {
+                                    try { eval(xhr.responseText); } catch (_) { window.applyBannerSizes(); }
+                                } else {
+                                    window.applyBannerSizes();
+                                }
+                            }
+                        };
+                        xhr.send();
+                    } catch (_) {
+                        window.applyBannerSizes();
+                    }
+                }
+            }
+
+            // Load sizes when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadBannerSizes);
+            } else {
+                loadBannerSizes();
+            }
+        })();
+    //- Inject master timeline duration (seconds) per banner and compose with size label
+    script.
+        (function () {
+            function folderFromIframe(iframe) {
+                try {
+                    var url = new URL(iframe.src, window.location.href);
+                    var path = url.pathname.replace(/\/+$/, '');
+                    var parts = path.split('/');
+                    // expect .../<folder>/index.html
+                    var folder = parts[parts.length - 2] || null;
+                    if (!folder) return null;
+                    // Prefer an explicit size token like 300x250 if present
+                    var m = folder.match(/(\d{2,4}x\d{2,4})/);
+                    if (m) return m[1];
+                    // Fallback: if folder is like "set-name-size" take last segment after '-'
+                    var segs = folder.split('-');
+                    return segs.length ? segs[segs.length - 1] : folder;
+                } catch (_) { return null; }
+            }
+
+            function compose(base, sizeLabel, durStr, loopStr) {
+                var extras = [];
+                if (loopStr) extras.push(loopStr);
+                if (durStr) extras.push(durStr + ' sec');
+                if (sizeLabel) extras.push(sizeLabel); // zip size last
+                // Ensure base excludes the set prefix (also allow size-only from folderFromIframe)
+                if (base) {
+                    // Prefer explicit size token if present
+                    var mm = base.match(/(\d{2,4}x\d{2,4})/);
+                    if (mm) base = mm[1];
+                    else base = String(base).replace(/^[^-]+-/, '');
+                }
+                return extras.length ? (base + ' · ' + extras.join(' · ')) : base;
+            }
+
+            function tryUpdate(frame) {
+                try {
+                    var sizeEl = frame.querySelector('.size');
+                    var iframe = frame.querySelector('iframe');
+                    if (!sizeEl || !iframe) return false;
+                    var base = sizeEl.getAttribute('data-base') || folderFromIframe(iframe) || (sizeEl.textContent || '').split(' · ')[0];
+                    // If base still contains a set prefix like 'banner-1-300x250', reduce to just the size
+                    if (base) {
+                        var msize = String(base).match(/(\d{2,4}x\d{2,4})/);
+                        if (msize) base = msize[1];
+                        else base = String(base).replace(/^[^-]+-/, '');
+                    }
+                    if (base) sizeEl.setAttribute('data-base', base);
+                    var tl = null;
+                    try {
+                        // Always try to access timeline, even on file protocol (for loop detection)
+                        tl = (iframe.contentWindow && iframe.contentWindow.master);
+                    } catch (_) { tl = null; }
+                    var durStr = sizeEl.getAttribute('data-duration') || '';
+                    if (!durStr && tl && typeof tl.duration === 'function') {
+                        var dRaw = (typeof tl.totalDuration === 'function') ? tl.totalDuration() : (typeof tl.duration === 'function' ? tl.duration() : 0);
+                        if (!isFinite(dRaw) || dRaw <= 0) dRaw = (typeof tl.duration === 'function') ? tl.duration() : 0;
+                        // Subtract final 1s dwell only when more than 1 loop
+                        var reps = (typeof tl.repeat === 'function') ? tl.repeat() : 0;
+                        var subtractFinalSecond = (typeof reps === 'number') && (reps >= 1 || reps === -1);
+                        var d = Math.max(0, dRaw - (subtractFinalSecond ? 1 : 0));
+                        if (typeof d === 'number' && d > 0) {
+                            durStr = (Math.round(d * 100) / 100).toFixed(2);
+                            sizeEl.setAttribute('data-duration', durStr);
+                        }
+                    }
+                    var loopStr = sizeEl.getAttribute('data-loops') || '';
+                    // Check timeline for loop info if available
+                    if (tl && typeof tl.repeat === 'function') {
+                        var repeats = tl.repeat();
+                        if (typeof repeats === 'number') {
+                            var newLoopStr = '';
+                            if (repeats === -1) {
+                                newLoopStr = '\u221E'; // infinite repeats
+                            } else if (repeats === 0) {
+                                newLoopStr = 'no loops'; // only the initial play
+                            } else if (repeats === 1) {
+                                newLoopStr = '1 loop'; // one additional play
+                            } else if (repeats > 1) {
+                                newLoopStr = repeats + ' loops'; // multiple additional plays
+                            }
+                            if (newLoopStr) {
+                                loopStr = newLoopStr;
+                                sizeEl.setAttribute('data-loops', loopStr);
+                            }
+                        }
+                    }
+                    // Fallback: if still no loops info (never resolved) but we have duration, assume single play (no loops)
+                    if (!loopStr && durStr && parseFloat(durStr) > 0) {
+                        loopStr = 'no loops';
+                        sizeEl.setAttribute('data-loops', loopStr);
+                    }
+                    var sizeStr = sizeEl.getAttribute('data-zip-size') || '';
+                    if (base) sizeEl.textContent = compose(base, sizeStr, durStr, loopStr);
+                    return !!durStr;
+                } catch (_) { return false; }
+            }
+            var attempts = 0;
+            var t = setInterval(function () {
+                attempts++;
+                var all = true;
+                document.querySelectorAll('.frame').forEach(function (f) {
+                    if (!tryUpdate(f)) all = false;
+                });
+                if (all || attempts > 40) clearInterval(t);
+            }, 500);
+            // initial pass
+            document.querySelectorAll('.frame').forEach(function (f) { tryUpdate(f); });
+            // Also react instantly when banners postMessage their master duration
+            window.addEventListener('message', function (e) {
+                try {
+                    var d = e.data || {};
+                    if (d.type !== 'banner-master' || !d.id) return;
+                    var frame = document.querySelector('.frame[data-id="' + d.id + '"]');
+                    if (!frame) return;
+                    var sizeEl = frame.querySelector('.size');
+                    if (!sizeEl) return;
+                    var val = d && typeof d.duration === 'number' ? d.duration : null;
+                    if (val != null) {
+                        var s = (Math.round(Math.max(0, val) * 100) / 100).toFixed(2);
+                        sizeEl.setAttribute('data-duration', s);
+                        // Compose immediately
+                        tryUpdate(frame);
+                    }
+                } catch (_) {}
+            });
+        })();

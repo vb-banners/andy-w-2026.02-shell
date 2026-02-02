@@ -1,0 +1,179 @@
+include vars
+
+doctype html
+html(lang='en')
+    head
+        block size
+        block set
+        
+        meta(charset='UTF-8')
+        meta(http-equiv='X-UA-Compatible' content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        meta(name='ad.size', content='width=' + width + ',height=' + height)
+
+        //- script(type='text/javascript' src='https://s0.2mdn.net/ads/studio/Enabler.js')
+        title #{projectTitle} #{width}x#{height} banner
+        style.
+            * {
+                position: absolute;
+                margin: 0;
+                padding: 0;
+                -webkit-user-drag: none;
+                -moz-user-drag: none;
+                -o-user-drag: none;
+            }
+
+            .banner, svg {
+                width: #{width}px;
+                height: #{height}px;
+            }
+
+            .banner {
+                //- cursor: pointer;
+                overflow: hidden;
+                visibility: hidden;
+                background-color: #{bannerBgColor};
+            }
+
+            .exit, .exit * {
+                cursor: pointer;
+            }
+        //- link(href='style.css' rel='stylesheet')
+        script.
+            var clickTag = '#{clickTag}';
+    body
+        a(href='javascript:void(window.open(window.clickTag))')
+            .banner
+                svg(viewbox='0 0 ' + width + ' ' + height width=width height=height xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' stroke-linecap='butt' stroke-linejoin='round' fill-rule='evenodd' clip-rule='evenodd')
+                    block svg
+                
+        script(src='https://s0.2mdn.net/ads/studio/cached_libs/gsap_3.13_min.js')
+
+        script
+            include plugins/DrawSVGPlugin.min.js
+            include plugins/CustomEase.min.js
+            include plugins/MorphSVGPlugin.min.js
+            //- include plugins/SplitText.min.js
+            //- include plugins/CustomWiggle.min.js
+            
+        //- ========================================
+        //- exposeMaster(timeline) - Integrates banner timeline with preview controls
+        //-
+        //- Features:
+        //- - Posts duration to parent window via postMessage
+        //- - Handles pause/play/restart commands from preview
+        //- - Computes "final pause" for loop detection
+        //- - Supports multi-loop timelines with dynamic duration
+        //-
+        //- Usage: Always call at end of block js:
+        //-   window.exposeMaster && window.exposeMaster(master);
+        //- ========================================
+        script.
+            (function() {
+                window.exposeMaster = function(tl){
+                    try { window.master = tl; } catch(e) {}
+                    window.restartBanner = function(){ try { tl.restart(0, false); } catch(e) {} };
+                    
+                    // Mark near-end pauses so preview can restart on first click
+                    try {
+                        tl.eventCallback('onPause', function(){
+                            try {
+                                var total = (typeof tl.totalDuration === 'function') ? tl.totalDuration() : (typeof tl.duration === 'function' ? tl.duration() : 0);
+                                var current = typeof tl.time === 'function' ? tl.time() : 0;
+                                var remaining = total - current;
+                                tl.finalPause = remaining <= 1.05; // ~1s threshold
+                            } catch(_){ tl.finalPause = false; }
+                        });
+                    } catch(_){ /* ignore */ }
+                    
+                    // Compute and expose total duration; subtract final 1s dwell only when multiple loops
+                    try {
+                        var raw = (typeof tl.totalDuration === 'function') ? tl.totalDuration() : (typeof tl.duration === 'function' ? tl.duration() : 0);
+                        if (!isFinite(raw) || raw <= 0) raw = (typeof tl.duration === 'function') ? tl.duration() : 0;
+
+                        // Determine loops: repeat() returns repeats after the first play (0 == 1 loop)
+                        var reps = (typeof tl.repeat === 'function') ? tl.repeat() : 0;
+                        var subtractFinalSecond = (typeof reps === 'number') && (reps >= 1 || reps === -1);
+                        var d = Math.max(0, raw - (subtractFinalSecond ? 1 : 0));
+                        
+                        try { window.masterDuration = d; } catch(_) {}
+                        try { document.documentElement.setAttribute('data-master-duration', (Math.round(d * 100) / 100).toFixed(2)); } catch(_) {}
+                        
+                        try {
+                            var fol = window.location.pathname.replace(/\/+$/, '').split('/');
+                            fol = fol[fol.length - 2] || null;
+                            if (fol && window.parent && window.parent !== window) {
+                                window.parent.postMessage({ type: 'banner-master', id: fol, duration: d }, '*');
+                            }
+                        } catch(_) {}
+
+                    } catch(_) {}
+                    
+                    // Check if parent preview has pause mode enabled
+                    try {
+                        if (window.parent && window.parent !== window) {
+                            // Try to access parent's sessionStorage for pause mode
+                            var parentPauseMode = false;
+                            var savedTime = 0;
+                            try {
+                                parentPauseMode = window.parent.sessionStorage.getItem('preview-pause-mode') === 'true';
+                                // Get saved time for this specific banner
+                                var timesStr = window.parent.sessionStorage.getItem('preview-banner-times');
+                                if (timesStr && parentPauseMode) {
+                                    var times = JSON.parse(timesStr);
+                                    // Extract banner ID from current path - folder name before index.html
+                                    var pathParts = window.location.pathname.split('/').filter(function(p) { return p; });
+                                    var bannerId = pathParts[pathParts.length - 2] || '';
+                                    savedTime = times[bannerId] || 0;
+                                }
+                            } catch(_) {
+                                // Can't access parent storage, will be controlled via message
+                            }
+                            
+                            // If pause mode is active, pause at saved time before notifying parent
+                            if (parentPauseMode && tl) {
+                                if (savedTime > 0) {
+                                    tl.pause(savedTime, false);
+                                } else {
+                                    tl.pause(0, false);
+                                }
+                            }
+                            
+                            // Notify parent that this banner is ready for timeline synchronization
+                            window.parent.postMessage({ type: 'banner-ready' }, '*');
+                        }
+                    } catch(e) {
+                    }
+                };
+                
+                // Listen for timeline control messages from parent preview
+                window.addEventListener('message', function(event) {
+                    try {
+                        var data = event.data;
+                        if (data && data.type === 'control' && window.master) {
+                            if (data.action === 'pause') {
+                                window.master.finalPause = false;
+                                if (typeof data.time === 'number') {
+                                    window.master.pause(data.time, false);
+                                } else {
+                                    window.master.pause();
+                                }
+                            } else if (data.action === 'play') {
+                                window.master.finalPause = false;
+                                if (typeof data.time === 'number') {
+                                    window.master.play(data.time);
+                                } else {
+                                    window.master.play();
+                                }
+                            } else if (data.action === 'restart') {
+                                window.master.finalPause = false;
+                                window.master.restart();
+                            }
+                        }
+                    } catch(e) {}
+                });
+            })();
+        
+        block js
+        //- script.
+        //-     master.tweenFromTo(1, 3, {repeat: -1});

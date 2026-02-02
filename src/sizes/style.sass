@@ -1,0 +1,697 @@
+*
+    margin: 0
+    padding: 0
+
+html
+    font-size: 16px
+    line-height: 1.5
+
+// Optional design tokens (kept minimal to avo  .dropdown-menu
+    position: absolute
+    top: 100%
+    right: 0
+    background: white
+  border: 1px solid var(--light-border-color)
+  border-radius: 6px
+    box-shadow: var(--shadow-dropdown)
+    min-width: 180px
+    opacity: 0
+    visibility: hidden
+    transform: translateY(-5px)
+    transition: all 0.15s ease
+    z-index: 1050-effects)
+:root
+    --muted: #{mutedTextColor}
+    --border: #{borderColor}
+    --page-pad-desktop: 20px
+    --page-pad-mobile: 20px
+
+body
+    visibility: hidden
+    user-select: none
+    display: flex
+    min-height: 100vh
+    flex-direction: column
+    font-family: 'Inter', system-ui, sans-serif
+    color: var(--text-color)
+
+header
+    position: sticky
+    top: 0
+    z-index: 1000
+    width: 100%
+    display: flex
+    align-items: stretch
+    gap: 24px // Tighten spacing between controls and sets on desktop
+    min-height: 60px
+    padding: 0 var(--page-pad-desktop)
+    box-shadow: var(--shadow-header)
+
+// Style the SVG logo element specifically, not inner <g class="logo">
+svg.logo
+    position: relative
+    display: inline-block
+    left: 0
+    top: 0
+    width: auto !important
+    height: clamp(26px, 4vw, 20px) !important
+    vertical-align: middle
+    padding-top: 0
+    padding-bottom: 0
+    padding-left: 0
+
+.topline
+    display: flex
+    align-items: center
+    column-gap: 28px // Reduce gap between logo and controls
+    padding: 0
+    margin-left: 0
+
+// Grouping inside header: controls on the left, set links next
+.topline .controls
+    display: flex
+    align-items: center
+    gap: 8px
+    justify-self: center
+
+.setsline
+    display: flex
+    align-items: center
+    gap: 16px
+    margin-top: 0 // desktop: share same row with topline
+
+.topline .controls a
+    position: relative
+    display: inline-flex
+    align-items: center
+    height: 30px
+    margin: 0
+    padding: 0 10px
+    font-family: 'Inter', system-ui, sans-serif
+    font-weight: 500
+    font-size: 12px
+    line-height: 1
+    cursor: pointer
+    text-decoration: none
+    border-radius: 5px
+
+// Thicken header download icon for better legibility
+.topline .controls a i.bi
+    font-size: 1.25rem // larger player icons
+    -webkit-text-stroke: .6px currentColor // bolder header icons
+    text-shadow: var(--text-shadow-sharp)
+    margin-right: 0 // icon-only buttons: no trailing gap
+    transition: transform .15s ease
+
+// Simple download popup styles
+.download-popup-wrapper
+  position: relative
+  display: inline-block
+
+.download-main-btn
+  position: relative
+  display: inline-flex
+  align-items: center
+  height: 36px
+  margin: 0
+  padding: 0 12px
+  font-family: 'Inter', system-ui, sans-serif
+  font-weight: 500
+  font-size: 13px
+  line-height: 1
+  cursor: pointer
+  text-decoration: none
+  border-radius: 5px
+  background: transparent !important
+  border: none
+  color: var(--mainColor)
+  box-shadow: none
+
+.download-main-btn i.bi
+  font-size: 1.25rem
+  -webkit-text-stroke: 0.6px currentColor
+  text-shadow: var(--text-shadow-sharp)
+  margin-right: 0
+  transition: transform 0.15s ease
+
+.download-main-btn:hover
+  background-color: transparent !important
+  color: var(--activeColor)
+
+// Download button label (show on hover like other header controls)
+.download-main-btn::after
+  content: attr(data-label)
+  position: absolute
+  left: 50%
+  top: 100%
+  transform: translate(-50%, -5px)
+  font-size: 9.5px
+  line-height: 1
+  font-weight: 600
+  white-space: nowrap
+  color: inherit
+  opacity: 0
+  pointer-events: none
+  transition: opacity .15s ease, transform .15s ease
+
+.download-main-btn:hover::after,
+.download-main-btn:focus-visible::after
+  opacity: 1
+
+// Keep download button active when hovering over popup menu
+.download-popup-wrapper:hover .download-main-btn,
+.download-popup-wrapper.active .download-main-btn
+  color: var(--activeColor)
+
+.download-popup-wrapper:hover .download-main-btn::after,
+.download-popup-wrapper.active .download-main-btn::after
+  opacity: 1
+
+.download-popup-menu
+  position: absolute
+  top: calc(100% + 11px)
+  left: 50%
+  transform: translateX(-50%)
+  background: white
+  border-radius: 6px
+  box-shadow: var(--shadow-dropdown)
+  min-width: 140px
+  z-index: 1050
+  display: none
+  overflow: hidden
+
+.download-popup-wrapper:hover .download-popup-menu,
+.download-popup-wrapper.active .download-popup-menu
+  display: block
+
+.download-option
+  display: flex
+  align-items: center
+  gap: 12px
+  padding: 12px 8px
+  text-decoration: none
+  color: inherit
+  font-size: 14px
+  font-weight: 500
+  transition: background-color 0.15s ease
+
+.download-option span
+  line-height: 1.1
+  display: block
+
+.dropdown-separator
+  height: 1px
+  background-color: var(--separator-light-color)
+  margin: 4px 0
+  width: 100%
+
+.download-option:hover
+  background-color: var(--hover-light-bg-color)
+
+.download-option i.bi
+  font-size: 1rem
+
+// Fix layout jump by ensuring sets stay in position
+.setsline
+    display: flex
+    align-items: center
+    gap: 24px
+    flex: 1 1 auto
+    margin: -2px 0 -2px 0
+    align-self: stretch
+    box-sizing: border-box
+    padding-bottom: 0
+    overflow-x: auto
+    overflow-y: hidden
+    -webkit-overflow-scrolling: touch
+    scrollbar-gutter: auto
+    scrollbar-width: thin
+
+.setsline a
+    font-weight: 600
+    font-size: 14px
+    text-decoration: none
+    line-height: 1
+    flex: 0 0 auto
+
+// No extra per-link margins; spacing controlled by container gap
+
+// Header button icon press feedback
+.topline .controls a:active i.bi,
+.topline .controls a.active-click i.bi
+    transform: translateY(1px)
+
+// Do not animate header play/pause icon on press
+.topline .controls a.forward-all i.bi
+    font-size: 1.6rem
+    transition: none
+
+// Responsive tweaks for small screens
+@media (max-width: 640px)
+    header
+        display: flex
+        flex-direction: column
+        align-items: stretch
+        gap: 4px
+        padding: 0 var(--page-pad-mobile)
+    .topline
+        display: grid
+        grid-template-columns: auto 1fr
+        align-items: center
+        column-gap: 12px
+    .topline .controls
+        margin-left: 0
+        display: flex
+        height: 100%
+        align-self: stretch
+        box-sizing: border-box
+        padding: 0 0 6px
+        margin-bottom: -6px
+    .setsline
+        display: flex
+        justify-content: flex-start
+        align-items: center
+        gap: 24px
+        align-self: flex-start // ensure left alignment under logo
+        margin: 0 0 -1px 0
+        padding-bottom: 1px
+        width: 100%
+        max-width: 100%
+        box-sizing: border-box
+        overflow-x: auto
+        overflow-y: hidden
+        -webkit-overflow-scrolling: touch
+    section
+        padding-left: var(--page-pad-mobile)
+    .frame
+        padding-left: 0
+    .setsline .index,
+    .setsline .set
+        font-size: 15px
+        font-weight: 600
+        padding: 0
+        margin: 0
+        line-height: 1
+    // Slightly tighten logo height on mobile
+    svg.logo
+        height: 28px !important
+    // Footer stability on mobile
+    footer
+        position: sticky
+        bottom: 0
+        left: 0
+        width: 100%
+        z-index: 5
+
+.topline .controls a.forward-all:active i.bi,
+.topline .controls a.forward-all.active-click i.bi
+    transform: none
+
+section
+    padding-left: var(--page-pad-desktop)
+    padding-top: 10px
+    // Remove inline-block whitespace between .frame.inline items
+    font-size: 0
+
+.frame
+    position: relative
+    isolation: isolate
+    margin-right: 20px
+    margin-bottom: 10px
+    padding-left: 0
+    padding-top: 0px
+
+// Box that wraps the iframe to anchor overlay within the banner area
+.frame-box
+    position: relative
+    display: inline-block
+    line-height: 0 // remove whitespace gap
+
+// Overlay download button in preview
+.download-btn
+    position: absolute
+    right: 8px
+    bottom: 8px
+    z-index: 100
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    width: 24px
+    height: 24px
+    border-radius: 9999px
+    text-decoration: none
+    color: var(--text-color)
+    background-color: rgba(255, 255, 255, 0.96)
+    border: 0
+    box-shadow: var(--shadow-banner-control)
+    opacity: 0
+    pointer-events: none
+    transform: translateY(2px)
+    transition: opacity .15s ease, transform .15s ease, background-color .15s ease, color .15s ease, box-shadow .15s ease
+
+// Reveal the download button only when hovering over the iframe area
+.frame-box:hover .download-btn
+    opacity: 1
+    pointer-events: auto
+    transform: translateY(0)
+
+// Click/focus feedback for better UX
+.download-btn:active,
+.download-btn.active-click
+    transform: translateY(1px) scale(.96)
+    box-shadow: var(--shadow-banner-control-hover)
+
+.download-btn:focus-visible
+    outline: none
+    box-shadow: var(--shadow-focus-ring)
+
+.download-btn:active .bi,
+.download-btn.active-click .bi
+    transform: translateY(1px)
+
+// Restart button mirrors the download button styling
+.restart-btn
+    position: absolute
+    right: 72px // adjusted for smaller buttons to keep spacing
+    bottom: 8px
+    z-index: 100
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    width: 24px
+    height: 24px
+    border-radius: 9999px
+    text-decoration: none
+    color: var(--text-color)
+    background-color: rgba(255, 255, 255, 0.96)
+    border: 0
+    box-shadow: var(--shadow-banner-control)
+    opacity: 0
+    pointer-events: none
+    transform: translateY(2px)
+    transition: opacity .15s ease, transform .15s ease, background-color .15s ease, color .15s ease, box-shadow .15s ease
+
+.frame-box:hover .restart-btn
+    opacity: 1
+    pointer-events: auto
+    transform: translateY(0)
+
+.restart-btn:active,
+.restart-btn.active-click
+    transform: translateY(1px) scale(.96)
+    box-shadow: var(--shadow-banner-control-hover)
+
+.restart-btn:focus-visible
+    outline: none
+    box-shadow: var(--shadow-focus-ring)
+
+.restart-btn:active .bi,
+.restart-btn.active-click .bi
+    transform: translateY(1px)
+
+// Spin animation for reload icon
+@keyframes spin360
+    0%
+        transform: rotate(0)
+    100%
+        transform: rotate(360deg)
+
+.restart-btn .bi.spin,
+.topline .controls a.restart-all i.bi.spin,
+.forward-btn .bi.spin,
+.topline .controls a.forward-all i.bi.spin
+    animation: spin360 .5s ease-out
+    
+// Extend spin to reverse buttons
+// (reverse-all removed)
+
+.download-btn:hover
+    transform: translateY(-1px)
+    background-color: rgba(255, 255, 255, 1)
+
+.download-btn .bi, .restart-btn .bi
+    font-size: .9rem
+    // Regular font-weight, no stroke or shadow effects
+
+// Forward (Play/Pause) overlay button
+.forward-btn
+    position: absolute
+    right: 40px // adjusted for smaller buttons to keep spacing
+    bottom: 8px
+    z-index: 100
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    width: 24px
+    height: 24px
+    border-radius: 9999px
+    text-decoration: none
+    color: var(--text-color)
+    background-color: rgba(255, 255, 255, 0.96)
+    border: 0
+    box-shadow: var(--shadow-banner-control)
+    opacity: 0
+    pointer-events: none
+    transform: translateY(2px)
+    transition: opacity .15s ease, transform .15s ease, background-color .15s ease, color .15s ease, box-shadow .15s ease
+
+.frame-box:hover .forward-btn
+    opacity: 1
+    pointer-events: auto
+    transform: translateY(0)
+
+// Disabled forward (Play) overlay button when timeline ended
+.forward-btn.is-disabled
+    opacity: 0 // hidden when not hovering the frame
+    pointer-events: none
+    cursor: default
+
+.frame-box:hover .forward-btn.is-disabled
+    opacity: .5 // visible but dimmed on hover
+    pointer-events: none
+    cursor: default
+
+.forward-btn:active,
+.forward-btn.active-click
+    transform: translateY(0) scale(1)
+    box-shadow: var(--shadow-banner-control)
+
+.forward-btn:focus-visible
+    outline: none
+    box-shadow: var(--shadow-focus-ring)
+
+.forward-btn:active .bi,
+.forward-btn.active-click .bi
+    transform: none
+
+.download-btn .bi, .restart-btn .bi, .forward-btn .bi
+    font-size: .9rem
+    -webkit-text-stroke: .5px currentColor
+    text-shadow: var(--text-shadow-sharp)
+
+// Reverse overlay button
+.download-btn .bi, .restart-btn .bi, .forward-btn .bi
+    font-size: .9rem
+    -webkit-text-stroke: .5px currentColor
+    text-shadow: var(--text-shadow-sharp)
+
+// Ensure iframe is below the overlay button
+.frame iframe
+    position: relative
+    z-index: 1
+
+iframe
+    display: block
+    border: 0
+    box-shadow: var(--shadow-header)
+
+.size
+    font-family: 'Inter', system-ui, sans-serif
+    font-weight: 600
+    line-height: 1
+    font-size: 8px
+    padding-top: 1px
+    padding-bottom: 1px
+    color: var(--size-label-passive)
+    transition: color 0.15s ease
+
+.frame:hover .size
+    color: var(--size-label-active)
+
+.inline
+    display: inline-block
+    vertical-align: top
+
+.c120x600
+    width: 120px
+    height: 600px
+
+.c160x600
+    width: 160px
+    height: 600px
+
+.c180x150
+    width: 180px
+    height: 150px
+
+.c200x200
+    width: 200px
+    height: 200px
+
+.c250x250
+    width: 250px
+    height: 250px
+
+.c300x50
+    width: 300px
+    height: 50px
+
+.c300x60
+    width: 300px
+    height: 60px
+
+.c300x250
+    width: 300px
+    height: 250px
+
+.c300x300
+    width: 300px
+    height: 300px
+
+.c300x600
+    width: 300px
+    height: 600px
+
+.c320x50
+    width: 320px
+    height: 50px
+
+.c320x100
+    width: 320px
+    height: 100px
+
+.c320x160
+    width: 320px
+    height: 160px
+
+.c320x360
+    width: 320px
+    height: 360px
+
+.c320x480
+    width: 320px
+    height: 480px
+
+.c336x280
+    width: 336px
+    height: 280px
+
+.c468x60
+    width: 468px
+    height: 60px
+
+.c500x1000
+    width: 500px
+    height: 1000px
+
+.c520x867
+    width: 520px
+    height: 867px
+
+.c627x627
+    width: 627px
+    height: 627px
+
+.c640x200
+    width: 640px
+    height: 200px
+
+.c640x360
+    width: 640px
+    height: 360px
+
+.c640x380
+    width: 640px
+    height: 380px
+
+.c640x400
+    width: 640px
+    height: 400px
+
+.c664x1030
+    width: 664px
+    height: 1030px
+
+.c728x90
+    width: 728px
+    height: 90px
+
+.c800x475
+    width: 800px
+    height: 475px
+
+.c970x90
+    width: 970px
+    height: 90px
+
+.c970x250
+    width: 970px
+    height: 250px
+
+.c994x250
+    width: 994px
+    height: 250px
+
+.c1000x500
+    width: 1000px
+    height: 500px
+
+.c1067x600
+    width: 1067px
+    height: 600px
+
+.c1080x1080
+    width: 1080px
+    height: 1080px
+
+.c1080x1920
+    width: 1080px
+    height: 1920px
+
+.c1200x628
+    width: 1200px
+    height: 628px
+
+.c1200x676
+    width: 1200px
+    height: 676px
+
+.c1200x1200
+    width: 1200px
+    height: 1200px
+
+.c1920x1080
+    width: 1920px
+    height: 1080px
+
+.c1980x1080
+    width: 1980px
+    height: 1080px
+
+.c2400x500
+    width: 2400px
+    height: 500px
+
+.c2400x1000
+    width: 2400px
+    height: 1000px
+
+// Footer and layout helpers for preview
+footer
+    margin-top: auto
+
+footer .text-muted
+    color: var(--muted)
+
+footer .link-secondary
+    color: var(--footer-link-color)

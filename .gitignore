@@ -1,0 +1,36 @@
+# Node.js dependencies
+node_modules.nosync/
+node_modules/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+ftp.config.json
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build.nosync/
+export*/
+
+# Project-specific (designs, assets)
+designs/
+stuff/
+motion/
+
+# Logs
+*.log
+
+# Editor-specific files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Cache folder
+.cache/

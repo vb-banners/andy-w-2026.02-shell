@@ -1,0 +1,130 @@
+script
+    include plugins/DrawSVGPlugin.min.js
+
+defs
+    clipPath#cta_mask
+g(clip-path='url(#cta_mask)')
+
+//- document.querySelectorAll("[class*='graph']")
+
+//- .from('.txt4, .norton-logo, .cta-btn', {duration: 1.5, y: '+=#{height * 2}', autoAlpha: 0}, '<50%')
+
+
+
+script.
+    //- MorphSVGPlugin
+    gsap.registerPlugin(MorphSVGPlugin);
+    .to('.logo-shape', {duration: 1.5, morphSVG: '.logo-shape-preview', ease: 'expo.inOut'}, '<')
+
+    MotionPathHelper.create('.pic', {
+        path: '.pic-path',
+        pathWidth: 5,
+        pathColor: 'green',
+        pathOpacity: 0.6,
+        selected: true,
+        start: 0.1,
+        end: 1,
+        duration: 10,
+        ease: 'sine.inOut',
+    });
+
+    .to('.cta-btn, .cta-mask', {duration: 2, transformOrigin: '50% 50%', rotation: 1, ease: 'wiggle({type: easeInOut, wiggles: 40})'}, '>1')
+        .to('.cta-btn, .cta-mask', {duration: 2, transformOrigin: '50% 50%', scale: 1.075, ease: 'wiggle({type: easeInOut, wiggles: 40})'}, '<')
+        //- .to('.cta-txt', {duration: 2, fill: '#fff', ease: 'wiggle({type: easeInOut, wiggles: 40})'}, '<')
+
+
+    [...document.querySelectorAll('.cta-btn')].forEach(ctaBtn => {
+        ctaBtn.addEventListener('mouseenter', () => gsap.set('.cta-shape', {fill: '#0069DA'}));
+        ctaBtn.addEventListener('mouseleave', () => gsap.set('.cta-shape', {fill: '#007bff'}));
+    });
+
+    [...document.querySelectorAll('.cta-btn')].forEach(ctaBtn => {
+        ctaBtn.addEventListener('mouseenter', () => {
+            gsap.set('.cta-shape', {fill: '#b43700'});
+            gsap.set('.cta-txt', {fill: '#fff'});
+        });
+        ctaBtn.addEventListener('mouseleave', () => {
+            gsap.set('.cta-shape', {fill: '#fff'});
+            gsap.set('.cta-txt', {fill: '#b43700'});
+        });
+    });
+
+    [...document.querySelectorAll('.cta-btn')].forEach(ctaBtn => {
+        let tl = gsap.timeline({paused: true}).set(['.cta-shape', '.cta-txt'], {fill: gsap.utils.wrap(['#fff', '#41454b'])});
+        ctaBtn.addEventListener('mouseenter', () => tl.restart());
+        ctaBtn.addEventListener('mouseleave', () => tl.reverse());
+    });
+
+    let circles = document.querySelector('.circles');
+    for (let i = 0; i < 500; i++) {
+        let circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        gsap.set(circle, {
+            classList: [`dot`],
+            attr: {cx: 168, cy: 350, r: 'random(1, 6)', fill: 'random([#3362ad, #ec5077, #00984d, #00afca, #f7a61b, #9372b1])'}
+        });
+        circles.appendChild(circle);
+    }
+
+    .to('.dot', {duration: 3, physics2D: {velocity: 'random(400, 900)', angle: 'random(240, 310)', gravity: 800}}, '<25%')
+
+    gsap.set(document.querySelectorAll("[class^='txt']"), {y: '-=100'});
+
+    let blendEases = (startEase, endEase, blender, startBlendProgress) => { var s = gsap.parseEase(startEase), e = gsap.parseEase(endEase), blender = gsap.parseEase(blender), p = startBlendProgress || 0; return v => v <= p ? s(v) : s(v) * (1 - blender((v - p) / (1 - p))) + e(v) * blender((v - p) / (1 - p)); };
+    blendEases('none', 'sine', 'sine.in', 0.5)
+
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
+    function parallax(event, target, mXi, mYi) {
+    var $this = $('.banner');
+    var cX = $this.width()/2;
+    var cY = $this.height()/2;
+    var dX = event.pageX - cX;
+    var dX = event.pageY - cY;
+    var relX = event.pageX - $this.offset().left;
+    var relY = event.pageY - $this.offset().top;
+
+    gsap.to(target,{duration: 0.75,
+        x: (relX - cX) / mXi,
+        y: (relY - cY) / mYi,
+        ease: "power2.out"
+    });
+
+    .to('.logo_arrow', {duration: 2, motionPath: {path: '.cursor_path', align: '.cursor_path', alignOrigin: [0, 0.5], autoRotate: true}, ease: 'power3.inOut'}, '<')
+
+
+//- GSAP Blur Plugin
+(() => {
+    const blurProperty = gsap.utils.checkPrefix("filter"),
+        blurExp = /blur\((.+)?px\)/,
+        getBlurMatch = target => (gsap.getProperty(target, blurProperty) || "").match(blurExp) || [];
+
+    gsap.registerPlugin({
+        name: "blur",
+        get(target) {
+            return +(getBlurMatch(target)[1]) || 0;
+        },
+        init(target, endValue) {
+            let data = this,
+                filter = gsap.getProperty(target, blurProperty),
+                endBlur = "blur(" + endValue + "px)",
+                match = getBlurMatch(target)[0],
+                index;
+            if (filter === "none") filter = "";
+            if (match) {
+                index = filter.indexOf(match);
+                endValue = filter.substr(0, index) + endBlur + filter.substr(index + match.length);
+            } else {
+                endValue = filter + endBlur;
+                filter += filter ? " blur(0px)" : "blur(0px)";
+            }
+            data.target = target;
+            data.interp = gsap.utils.interpolate(filter, endValue);
+        },
+        render(progress, data) {
+            data.target.style[blurProperty] = data.interp(progress);
+        }
+    });
+})();
+
+//- block video
+    //- video.video(width='300' height='600' poster='video.png' muted='' autoplay='' controlsList='nofullscreen nodownload')
+    //-     source(src='https://vb-banners.com/dev/tla/video.mp4')

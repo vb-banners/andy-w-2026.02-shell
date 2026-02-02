@@ -1,0 +1,42 @@
+{
+  "name": "banner-template-4",
+  "version": "1.0.0",
+  "description": "HTML5 banner development template using Gulp, Pug, Sass, and GSAP animation",
+  "main": "gulpfile.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "gulp",
+    "dev:build": "gulp devbuild",
+    "build": "gulp build",
+    "zip": "gulp zip",
+    "ftp": "gulp ftp",
+    "verify:images": "node scripts/verify-images.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "basic-ftp": "^5.0.5",
+    "browser-sync": "^2.29.3",
+    "del": "^6.1.1",
+    "dotenv": "^16.3.1",
+    "gulp": "^5.0.1",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-cached": "^1.1.1",
+    "gulp-cli": "^3.1.0",
+    "gulp-csscomb": "^3.1.0",
+    "gulp-foreach": "^0.1.0",
+    "gulp-newer": "^1.4.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-pug": "^5.0.0",
+    "gulp-pug-beautify": "^0.0.1",
+    "gulp-sass": "^6.0.0",
+    "gulp-size": "^4.0.1",
+    "gulp-zip": "^5.1.0",
+    "sass": "^1.68.0",
+    "ssh2-sftp-client": "^12.0.1",
+    "through2": "^4.0.2"
+  }
+}

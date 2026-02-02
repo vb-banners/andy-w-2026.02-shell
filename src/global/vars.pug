@@ -1,0 +1,862 @@
+//- ========================================
+//- PROJECT CONFIGURATION
+//- ========================================
+- var mainSet = 'shell'
+- var projectTitle = 'Shell'
+- var v = Date.now()
+
+//- Set to your site if desired (false to disable link)
+- var logoLink = false
+- var footerLink = false
+
+//- Footer content variables
+- var footerCopyright = '©'
+- var footerYear = '2026'
+- var footerCompany = 'We-Do-Collaboration Ltd. All rights reserved '
+- var footerFullText = `© ${footerYear} ${footerCompany}`
+
+//- Flag to control visibility of whole package download in preview
+- var showWholePackageDownload = false
+
+//- Preview behavior toggles
+- var enablePreviewPreloading = false
+
+//- ========================================
+//- SETS
+//- ========================================
+- var setThinking = mainSet + '-thinking'
+- var titleThinking = 'Thinking'
+- var titleAvg = 'PowerPods'
+
+- var setBox = mainSet + '-box'
+- var titleBox = 'Box'
+
+//- ========================================
+//- COLORS
+//- ========================================
+
+//- Banner
+- var bannerBgColor = '#11122B'
+
+//- Main colors
+- var lightMainColor = '#fff'
+- var darkMainColor = '#fff'
+- var lightActiveColor = '#67FFA6'
+- var darkActiveColor = '#67FFA6'
+
+//- Body/Header
+- var lightBodyColor = '#F6F6FF'
+- var darkBodyColor = '#11122B'
+- var lightHeaderColor = '#11122B'
+- var darkHeaderColor = '#11122B'
+
+//- Logo
+- var lightLogoMainColor = '#fff'
+- var darkLogoMainColor = '#fff'
+- var lightLogoSecondaryColor = '#000'
+- var darkLogoSecondaryColor = '#fff'
+
+//- Footer
+- var lightFooterBgColor = '#11122B'
+- var darkFooterBgColor = '#11122B'
+- var lightFooterTextColor = '#fff'
+- var darkFooterTextColor = '#fff'
+- var lightFooterLinkColor = '#67FFA6'
+- var darkFooterLinkColor = '#67FFA6'
+
+//- Borders
+- var lightBorderColor = '#e5e7eb'
+- var darkBorderColor = '#333'
+- var lightBorderLightColor = '#ddd'
+- var lightSeparatorColor = '#f5f5f5'
+- var darkSeparatorColor = '#444'
+
+//- Size labels
+- var lightSizeLabelPassive = '#666'
+- var lightSizeLabelActive = '#000'
+- var darkSizeLabelPassive = '#999'
+- var darkSizeLabelActive = '#ccc'
+
+//- Iframe controls
+- var lightIframeText = '#999'
+- var lightIframeHoverText = '#11122B'
+- var darkIframeText = '#999'
+- var darkIframeHoverText = '#fff'
+
+//- Toggle buttons
+- var lightToggleBg = '#11122B'
+- var lightToggleIcon = '#fff'
+- var lightToggleHoverBg = '#67FFA6'
+- var lightToggleHoverIcon = '#11122B'
+- var darkToggleBg = '#11122B'
+- var darkToggleIcon = '#fff'
+- var darkToggleHoverBg = '#67FFA6'
+- var darkToggleHoverIcon = '#11122B'
+
+//- Menu
+- var lightMenuBg = '#11122B'
+- var lightMenuBorder = '#11122B'
+- var darkMenuBg = '#11122B'
+- var darkMenuBorder = '#11122B'
+
+//- Shimmer loading effect
+- var lightShimmerColor = '#ECCCDB'
+- var lightShimmerAlphaBase = 0.5
+- var lightShimmerAlphaPeak = 1
+- var lightShimmerBorderColor = '#000'
+- var lightShimmerBorderAlpha = 0.75
+- var darkShimmerColor = '#ECCCDB'
+- var darkShimmerAlphaBase = 0.5
+- var darkShimmerAlphaPeak = 1
+- var darkShimmerBorderColor = '#ECCCDB'
+- var darkShimmerBorderAlpha = 0.75
+
+//- Spinner
+- var lightSpinnerBorderColor = '#ECCCDB'
+- var lightSpinnerTopColor = '#000'
+- var darkSpinnerBorderColor = '#ECCCDB'
+- var darkSpinnerTopColor = '#000'
+
+//- Pre-computed shimmer RGB values (avoids runtime hex parsing)
+-
+  function hexToRgb(hex) {
+    hex = String(hex || '#000');
+    var isShort = hex.length === 4;
+    var r = isShort ? parseInt(hex.charAt(1) + hex.charAt(1), 16) : parseInt(hex.slice(1,3), 16);
+    var g = isShort ? parseInt(hex.charAt(2) + hex.charAt(2), 16) : parseInt(hex.slice(3,5), 16);
+    var b = isShort ? parseInt(hex.charAt(3) + hex.charAt(3), 16) : parseInt(hex.slice(5,7), 16);
+    return { r: r, g: g, b: b };
+  }
+
+- var lightShimmerRgb = hexToRgb(lightShimmerColor)
+- var darkShimmerRgb = hexToRgb(darkShimmerColor)
+- var lightShimmerBorderRgb = hexToRgb(lightShimmerBorderColor)
+- var darkShimmerBorderRgb = hexToRgb(darkShimmerBorderColor)
+
+//- Pre-computed rgba strings for shimmer effects
+- var lightShimmerBase = 'rgba(' + lightShimmerRgb.r + ', ' + lightShimmerRgb.g + ', ' + lightShimmerRgb.b + ', ' + lightShimmerAlphaBase + ')'
+- var lightShimmerPeak = 'rgba(' + lightShimmerRgb.r + ', ' + lightShimmerRgb.g + ', ' + lightShimmerRgb.b + ', ' + lightShimmerAlphaPeak + ')'
+- var lightShimmerBorder = 'rgba(' + lightShimmerBorderRgb.r + ', ' + lightShimmerBorderRgb.g + ', ' + lightShimmerBorderRgb.b + ', ' + lightShimmerBorderAlpha + ')'
+- var darkShimmerBase = 'rgba(' + darkShimmerRgb.r + ', ' + darkShimmerRgb.g + ', ' + darkShimmerRgb.b + ', ' + darkShimmerAlphaBase + ')'
+- var darkShimmerPeak = 'rgba(' + darkShimmerRgb.r + ', ' + darkShimmerRgb.g + ', ' + darkShimmerRgb.b + ', ' + darkShimmerAlphaPeak + ')'
+- var darkShimmerBorder = 'rgba(' + darkShimmerBorderRgb.r + ', ' + darkShimmerBorderRgb.g + ', ' + darkShimmerBorderRgb.b + ', ' + darkShimmerBorderAlpha + ')'
+
+//- ========================================
+//- SHADOWS
+//- ========================================
+-
+  var shadows = {
+    bannerControl: '0 1px 6px rgba(0, 0, 0, 0.15)',
+    bannerControlHover: '0 1px 6px rgba(0, 0, 0, 0.18)',
+    dropdown: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    modal: '0 6px 16px rgba(0, 0, 0, 0.2)',
+    header: '0 2px 10px 0 rgba(0, 0, 0, 0.1)',
+    darkTheme: '0 4px 12px rgba(0, 0, 0, 0.4)',
+    loadingShimmer: '0 1px 8px rgba(0,0,0,0.1)',
+    loadingShimmerDark: '0 1px 8px rgba(0,0,0,0.4)',
+    tooltip: '0 2px 8px rgba(0, 0, 0, 0.2)',
+    focusRing: '0 0 0 2px rgba(56, 96, 151, 0.35), 0 2px 8px rgba(0, 0, 0, 0.15)',
+    textSharp: '0 0 0.01px currentColor'
+  };
+
+//- Legacy shadow variables (for backward compatibility)
+- var shadowBannerControl = shadows.bannerControl
+- var shadowDropdown = shadows.dropdown
+- var shadowModal = shadows.modal
+- var shadowHeader = shadows.header
+- var shadowBannerControlHover = shadows.bannerControlHover
+- var shadowDarkTheme = shadows.darkTheme
+- var shadowLoadingShimmer = shadows.loadingShimmer
+- var shadowLoadingShimmerDark = shadows.loadingShimmerDark
+- var shadowTooltip = shadows.tooltip
+- var shadowFocusRing = shadows.focusRing
+- var textShadowSharp = shadows.textSharp
+
+//- ========================================
+//- TIMING
+//- ========================================
+-
+  var timing = {
+    bannerLoadTimeout: 4000,
+    syncModeTimeout: 6000,
+    bannerPollInterval: 100,
+    bannerMaxPollAttempts: 40,
+    noticeAutoHide: 10000,
+    buttonFeedback: 200,
+    shimmerDuration: '1.8s',
+    transitionFast: '.15s',
+    transitionMedium: '.25s',
+    transitionSlow: '.3s'
+  };
+
+//- Legacy timing variables (for backward compatibility)
+- var bannerLoadTimeoutMs = timing.bannerLoadTimeout
+- var syncModeTimeoutMs = timing.syncModeTimeout
+- var bannerPollIntervalMs = timing.bannerPollInterval
+- var bannerMaxPollAttempts = timing.bannerMaxPollAttempts
+- var noticeAutoHideMs = timing.noticeAutoHide
+- var buttonFeedbackMs = timing.buttonFeedback
+- var shimmerDuration = timing.shimmerDuration
+- var transitionFast = timing.transitionFast
+- var transitionMedium = timing.transitionMedium
+- var transitionSlow = timing.transitionSlow
+
+//- ========================================
+//- MIXINS - Style Blocks
+//- ========================================
+
+//- CSS Custom Properties for theming
+mixin themeVariables()
+  style.
+    :root {
+      --mainColor: #{lightMainColor};
+      --activeColor: #{lightActiveColor};
+      --logo-main-color: #{lightLogoMainColor};
+      --logo-secondary-color: #{lightLogoSecondaryColor};
+      --border: #{lightBorderColor};
+      --white-color: #{'#fff'};
+      --light-border-color: #{lightBorderLightColor};
+      --separator-light-color: #{lightSeparatorColor};
+      --hover-light-bg-color: #{lightActiveColor};
+      --footer-link-color: #{lightFooterLinkColor};
+      --size-label-passive: #{lightSizeLabelPassive};
+      --size-label-active: #{lightSizeLabelActive};
+      --shadow-banner-control: #{shadows.bannerControl};
+      --shadow-dropdown: #{shadows.dropdown};
+      --shadow-modal: #{shadows.modal};
+      --shadow-header: #{shadows.header};
+      --shadow-banner-control-hover: #{shadows.bannerControlHover};
+      --shadow-dark-theme: #{shadows.darkTheme};
+      --shadow-loading-shimmer: #{shadows.loadingShimmer};
+      --shadow-loading-shimmer-dark: #{shadows.loadingShimmerDark};
+      --shadow-tooltip: #{shadows.tooltip};
+      --shadow-focus-ring: #{shadows.focusRing};
+      --text-shadow-sharp: #{shadows.textSharp};
+      --spinner-border: #{lightSpinnerBorderColor};
+      --spinner-top: #{lightSpinnerTopColor};
+      --shimmer-base: #{lightShimmerBase};
+      --shimmer-peak: #{lightShimmerPeak};
+      --shimmer-border: #{lightShimmerBorder};
+      --shimmer-shadow: var(--shadow-loading-shimmer);
+    }
+
+//- Base layout styles (body, header, footer)
+mixin baseLayoutStyles()
+  style.
+    body {background-color: #{lightBodyColor}}
+    header {background-color: #{lightHeaderColor}}
+    footer {background-color: #{lightFooterBgColor} !important; color: #{lightFooterTextColor} !important; border-top: 1px solid #{lightBorderColor} !important;}
+    footer a, footer a.small, footer a *, footer span, footer #year, footer span#year {color: #{lightFooterTextColor} !important;}
+    footer a:hover, footer a:hover *, footer a:hover span {color: #{lightFooterLinkColor} !important;}
+
+//- Shimmer animation styles
+mixin shimmerStyles()
+  style.
+    /* Subtle shimmer placeholders until ready */
+    body:not(.banners-ready) .frame-box iframe { opacity: 0 }
+    body:not(.banners-ready) .frame-box .download-btn,
+    body:not(.banners-ready) .frame-box .restart-btn,
+    body:not(.banners-ready) .frame-box .forward-btn { opacity: 0; pointer-events: none }
+    /* Individual iframe restart shimmer */
+    .frame-box.restarting iframe { opacity: 0 }
+    .frame-box.restarting .download-btn,
+    .frame-box.restarting .restart-btn,
+    .frame-box.restarting .forward-btn { opacity: 0; pointer-events: none }
+    .frame-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--shimmer-base) 25%, var(--shimmer-peak) 37%, var(--shimmer-base) 63%);
+      background-size: 400% 100%;
+      animation: shimmer #{timing.shimmerDuration} ease-in-out infinite;
+      box-shadow: var(--shimmer-shadow), inset 0 0 0 1px var(--shimmer-border);
+      transition: opacity #{timing.transitionMedium} ease;
+      z-index: 2;
+    }
+    body.banners-ready .frame-box:not(.restarting)::before { opacity: 0; pointer-events: none }
+    body.preloading-disabled .frame-box::before { content: none !important; display: none !important; box-shadow: none !important }
+    body.preloading-disabled .loading-overlay .loading-label { display: none !important }
+    @keyframes shimmer {
+      0% { background-position: 100% 0 }
+      100% { background-position: 0 0 }
+    }
+    @keyframes spin { to { transform: rotate(360deg) } }
+
+//- Iframe control styles
+mixin iframeControlStyles()
+  style.
+    .frame-box {
+      position: relative;
+    }
+    .frame-box iframe {
+      pointer-events: auto;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      touch-action: none;
+      draggable: false;
+      overflow: hidden;
+    }
+    .frame-box .download-btn,
+    .frame-box .restart-btn,
+    .frame-box .forward-btn {
+      z-index: 5;
+    }
+    .frame .download-btn,
+    .frame .restart-btn,
+    .frame .forward-btn { background-color: #{lightToggleBg}; color: #{lightToggleIcon} }
+    .frame .download-btn .bi,
+    .frame .restart-btn .bi,
+    .frame .forward-btn .bi { color: inherit }
+    .frame .forward-btn.is-playing { background-color: #{lightToggleHoverBg}; color: #{lightToggleHoverIcon} }
+    .frame .download-btn:hover,
+    .frame .restart-btn:hover,
+    .frame .forward-btn:hover { background-color: #{lightToggleHoverBg}; color: #{lightToggleHoverIcon} }
+    body.iframe-controls-hidden .frame-box .download-btn,
+    body.iframe-controls-hidden .frame-box .restart-btn,
+    body.iframe-controls-hidden .frame-box .forward-btn {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transform: translateY(10px) !important;
+    }
+
+//- Toggle button styles (bottom floating buttons)
+mixin toggleButtonStyles()
+  style.
+    .iframe-controls-toggle {
+      position: fixed;
+      bottom: 40px;
+      right: 20px;
+      z-index: 1050;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #{lightToggleBg};
+      border: none;
+      box-shadow: var(--shadow-dropdown);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all #{timing.transitionSlow} ease;
+      color: #{lightToggleIcon};
+    }
+    .iframe-controls-toggle:hover {
+      background-color: #{lightToggleHoverBg};
+      box-shadow: var(--shadow-modal);
+      transform: translateY(-2px);
+      color: #{lightToggleHoverIcon};
+    }
+    .iframe-controls-toggle .bi {
+      font-size: 20px;
+      transition: transform 0.2s ease;
+      color: inherit;
+    }
+    .iframe-controls-toggle.active .bi {
+      transform: scale(1.1);
+    }
+    .dark-theme-toggle {
+      position: fixed;
+      bottom: 40px;
+      right: 80px;
+      z-index: 1050;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #{lightToggleBg};
+      border: none;
+      box-shadow: var(--shadow-dropdown);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all #{timing.transitionSlow} ease;
+      color: #{lightToggleIcon};
+    }
+    .dark-theme-toggle:hover {
+      background-color: #{lightToggleHoverBg};
+      box-shadow: var(--shadow-modal);
+      transform: translateY(-2px);
+      color: #{lightToggleHoverIcon};
+    }
+    .dark-theme-toggle .bi {
+      font-size: 20px;
+      transition: transform 0.2s ease;
+      color: inherit;
+    }
+    .dark-theme-toggle.active .bi {
+      transform: scale(1.1);
+    }
+
+//- Tooltip/hover label styles
+mixin tooltipStyles()
+  style.
+    .iframe-controls-toggle::after {
+      content: attr(data-label);
+      position: absolute;
+      right: 0;
+      bottom: 100%;
+      transform: translate(0, -8px);
+      font-size: 11px;
+      line-height: 1.3;
+      font-weight: 500;
+      white-space: nowrap;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.85);
+      padding: 5px 8px;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1060;
+      box-shadow: var(--shadow-tooltip);
+    }
+    .dark-theme-toggle::after {
+      content: attr(data-label);
+      position: absolute;
+      right: 0;
+      bottom: 100%;
+      transform: translate(0, -8px);
+      font-size: 11px;
+      line-height: 1.3;
+      font-weight: 500;
+      white-space: nowrap;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.85);
+      padding: 5px 8px;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1060;
+      box-shadow: var(--shadow-tooltip);
+    }
+    .iframe-controls-toggle:hover::after,
+    .iframe-controls-toggle:focus-visible::after {
+      opacity: 1;
+      transform: translate(0, -12px);
+    }
+    .dark-theme-toggle:hover::after,
+    .dark-theme-toggle:focus-visible::after {
+      opacity: 1;
+      transform: translate(0, -12px);
+    }
+    .topline .controls a.forward-all::after,
+    .topline .controls a.restart-all::after,
+    .topline .controls a[download]::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      transform: translate(-50%, -5px);
+      font-size: 9.5px;
+      line-height: 1;
+      font-weight: 600;
+      white-space: nowrap;
+      color: inherit;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity #{timing.transitionFast} ease, transform #{timing.transitionFast} ease;
+    }
+    .topline .controls a.forward-all:hover::after,
+    .topline .controls a.forward-all:focus-visible::after,
+    .topline .controls a.restart-all:hover::after,
+    .topline .controls a.restart-all:focus-visible::after,
+    .topline .controls a[download]:hover::after,
+    .topline .controls a[download]:focus-visible::after {
+      opacity: 1;
+    }
+    .topline .controls a.is-hover::after,
+    .topline .controls a.active-click::after { opacity: 1 }
+
+//- Dark theme styles
+mixin darkThemeStyles()
+  style.
+    body.dark-theme {
+      background-color: #{darkBodyColor} !important;
+      --size-label-passive: #{darkSizeLabelPassive};
+      --size-label-active: #{darkSizeLabelActive};
+      --logo-main-color: #{darkLogoMainColor};
+      --logo-secondary-color: #{darkLogoSecondaryColor};
+      --spinner-border: #{darkSpinnerBorderColor};
+      --spinner-top: #{darkSpinnerTopColor};
+      --shimmer-base: #{darkShimmerBase};
+      --shimmer-peak: #{darkShimmerPeak};
+      --shimmer-border: #{darkShimmerBorder};
+      --shimmer-shadow: var(--shadow-loading-shimmer-dark);
+      --hover-light-bg-color: #{darkActiveColor};
+    }
+    body.dark-theme header {
+      background-color: #{darkHeaderColor} !important;
+      border-bottom: 1px solid #{darkBorderColor};
+    }
+    body.dark-theme .topline .controls a {
+      background-color: #{darkMainColor} !important;
+      color: #{'#fff'} !important;
+    }
+    body.dark-theme .topline .controls a:hover {
+      background-color: #{darkActiveColor} !important;
+      color: #{'#fff'} !important;
+    }
+    body.dark-theme .topline .controls a.restart-all,
+    body.dark-theme .topline .controls a.forward-all,
+    body.dark-theme .topline .controls a[download] {
+      background-color: transparent !important;
+      color: #{darkMainColor} !important;
+    }
+    body.dark-theme .topline .controls a.restart-all:hover,
+    body.dark-theme .topline .controls a.forward-all:hover,
+    body.dark-theme .topline .controls a[download]:hover {
+      color: #{darkActiveColor} !important;
+    }
+    body.dark-theme .topline .controls a.forward-all.is-playing {
+      color: #{darkActiveColor} !important;
+    }
+    body.dark-theme .download-main-btn {
+      color: #{darkMainColor} !important;
+      background-color: transparent !important;
+    }
+    body.dark-theme .download-main-btn:hover {
+      background-color: transparent !important;
+      color: #{darkActiveColor} !important;
+    }
+    body.dark-theme .download-popup-wrapper:hover .download-main-btn,
+    body.dark-theme .download-popup-wrapper.active .download-main-btn {
+      background-color: transparent !important;
+      color: #{darkActiveColor} !important;
+    }
+    body.dark-theme .download-popup-menu {
+      background: #{darkMenuBg} !important;
+      border: 1px solid #{darkMenuBorder} !important;
+      box-shadow: var(--shadow-dark-theme) !important;
+    }
+    body.dark-theme .download-option {
+      color: #e0e0e0 !important;
+      border-bottom-color: #{darkMenuBorder} !important;
+    }
+    body.dark-theme .download-option:hover {
+      background-color: #{darkActiveColor} !important;
+      color: #{darkMainColor} !important;
+    }
+    body.dark-theme .dropdown-separator {
+      background-color: #{darkSeparatorColor} !important;
+    }
+    body.dark-theme .loading-overlay .loading-label {
+      color: #{darkMainColor} !important;
+    }
+    body.dark-theme .loading-overlay .loading-label .loading-spinner {
+      border: 3px solid var(--spinner-border) !important;
+      border-top-color: var(--spinner-top) !important;
+    }
+    body.dark-theme .setsline a.index,
+    body.dark-theme .setsline a.set {
+      color: #{darkMainColor} !important;
+    }
+    body.dark-theme .setsline a.index:hover,
+    body.dark-theme .setsline a.set:hover {
+      color: #{darkActiveColor} !important;
+    }
+    body.dark-theme .setsline a.set.is-active,
+    body.dark-theme .setsline a.index.is-active {
+      color: #{darkActiveColor} !important;
+    }
+    body.dark-theme .frame {
+      color: #{darkIframeText} !important;
+      background-color: #2d2d2d;
+    }
+    body.dark-theme .frame:hover {
+      background-color: #353535;
+    }
+    body.dark-theme .frame:hover :where(*) {
+      color: #{darkIframeHoverText};
+    }
+    body.dark-theme .frame .size {
+      color: #{darkIframeText} !important;
+    }
+    body.dark-theme .frame:hover .size {
+      color: #{darkIframeHoverText} !important;
+    }
+    body.dark-theme .frame .download-btn,
+    body.dark-theme .frame .restart-btn,
+    body.dark-theme .frame .forward-btn {
+      background-color: #{darkToggleBg};
+      color: #{darkToggleIcon};
+    }
+    body.dark-theme .frame .download-btn .bi,
+    body.dark-theme .frame .restart-btn .bi,
+    body.dark-theme .frame .forward-btn .bi { color: inherit }
+    body.dark-theme .frame .download-btn:hover,
+    body.dark-theme .frame .restart-btn:hover,
+    body.dark-theme .frame .forward-btn:hover {
+      background-color: #{darkToggleHoverBg};
+      color: #{darkToggleHoverIcon};
+    }
+    body.dark-theme .frame .forward-btn.is-playing {
+      background-color: #{darkToggleHoverBg};
+      color: #{darkToggleHoverIcon};
+    }
+    body.dark-theme footer {
+      background-color: #{darkFooterBgColor} !important;
+      color: #{darkFooterTextColor} !important;
+      border-top: 1px solid #{darkBorderColor} !important;
+    }
+    body.dark-theme footer a, body.dark-theme footer a.small, body.dark-theme footer a *, body.dark-theme footer span, body.dark-theme footer #year, body.dark-theme footer span#year {
+      color: #{darkFooterTextColor} !important;
+    }
+    body.dark-theme footer a:hover, body.dark-theme footer a:hover *, body.dark-theme footer a:hover span {
+      color: #{darkFooterLinkColor} !important;
+    }
+    body.dark-theme .dark-theme-toggle {
+      background-color: #{darkToggleBg} !important;
+      color: #{darkToggleIcon} !important;
+    }
+    body.dark-theme .dark-theme-toggle:hover {
+      background-color: #{darkToggleHoverBg} !important;
+      color: #{darkToggleHoverIcon} !important;
+    }
+    body.dark-theme .iframe-controls-toggle {
+      background-color: #{darkToggleBg} !important;
+      color: #{darkToggleIcon} !important;
+    }
+    body.dark-theme .iframe-controls-toggle:hover {
+      background-color: #{darkToggleHoverBg} !important;
+      color: #{darkToggleHoverIcon} !important;
+    }
+    body.dark-theme.banners-ready .frame-box:not(.restarting)::before { opacity: 0 !important; pointer-events: none !important }
+    body.dark-theme .iframe-controls-toggle::after,
+    body.dark-theme .dark-theme-toggle::after {
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #333;
+    }
+    body.dark-theme .setsline { scrollbar-color: #{darkActiveColor} transparent }
+    body.dark-theme .setsline::-webkit-scrollbar-thumb { background-color: #{darkActiveColor} }
+
+//- Header control styles
+mixin headerControlStyles()
+  style.
+    .topline .controls a {background-color: #{lightMainColor}; color: #{'#fff'}}
+    .topline .controls a:hover {background-color: #{lightActiveColor} !important; color: #{'#fff'};}
+    .frame {color: #{lightIframeText}}
+    main > section { text-align: left }
+    main > section .container { max-width: none; width: 100%; margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0 }
+    .frame:hover :where(*) { color: #{lightIframeHoverText} }
+    .topline .controls a.restart-all, .topline .controls a.forward-all, .topline .controls a[download] { position: relative; background-color: transparent !important; color: #{lightMainColor}; box-shadow: none }
+    .topline .controls a.restart-all:hover, .topline .controls a.forward-all:hover, .topline .controls a[download]:hover { background-color: transparent !important; color: #{lightActiveColor} }
+    .topline .controls a.forward-all.is-playing { color: #{lightActiveColor} }
+    .topline .controls a.forward-all.is-disabled { opacity: .5; pointer-events: none; cursor: default }
+    .topline .controls a.forward-all:active i.bi,
+    .topline .controls a.forward-all.active-click i.bi { transform: none }
+    .setsline a.index,
+    .setsline a.set { background-color: transparent !important; color: #{lightMainColor}; box-shadow: none; text-decoration: none }
+    .setsline a.index:hover,
+    .setsline a.set:hover { background-color: transparent !important; color: #{lightActiveColor} }
+    .setsline a.set.is-active,
+    .setsline a.index.is-active { color: #{lightActiveColor}; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px }
+    .setsline { scrollbar-width: thin; scrollbar-color: #{lightActiveColor} transparent }
+    .setsline::-webkit-scrollbar { height: 1px }
+    .setsline::-webkit-scrollbar-track { background: transparent }
+    .setsline::-webkit-scrollbar-thumb { background-color: #{lightActiveColor}; border-radius: 999px }
+    .setsline.loading-scroll { scrollbar-width: none; overflow: hidden }
+    .setsline.loading-scroll::-webkit-scrollbar { display: none }
+    .frame .size {
+      background-color: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      color: #{lightIframeText} !important;
+    }
+    .frame:hover .size {
+      color: #{lightIframeHoverText} !important;
+    }
+    .frame {
+      background: transparent !important;
+    }
+    .frame-container {
+      background: transparent !important;
+    }
+
+//- Loading overlay styles
+mixin loadingOverlayStyles()
+  style.
+    .topline { position: relative }
+    .loading-overlay {
+      position: absolute;
+      z-index: 10;
+      top: 8px;
+      pointer-events: none;
+      text-align: center;
+      width: auto;
+    }
+    .setsline .loading-label,
+    .loading-overlay .loading-label { display: none; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #{lightMainColor}; user-select: none; white-space: nowrap }
+    .setsline .loading-label .loading-spinner,
+    .loading-overlay .loading-label .loading-spinner { width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--spinner-border); border-top-color: var(--spinner-top); animation: spin 0.9s linear infinite; display: inline-block }
+    body.sync-mode:not(.banners-ready) .loading-overlay .loading-label { display: inline-flex }
+    body:not(.banners-ready) .loading-overlay .loading-label { display: inline-flex }
+    body.sync-mode:not(.banners-ready) .topline .controls a.forward-all { opacity: 0 !important; pointer-events: none !important }
+    body.sync-mode:not(.banners-ready) .topline .controls a.restart-all { opacity: 0 !important; pointer-events: none !important }
+    body.sync-mode:not(.banners-ready) .topline .controls .download-popup-wrapper { opacity: 0 !important; pointer-events: none !important }
+    body:not(.banners-ready) .topline .controls a.forward-all { opacity: 0 !important; pointer-events: none !important }
+    body:not(.banners-ready) .topline .controls a.restart-all { opacity: 0 !important; pointer-events: none !important }
+    body:not(.banners-ready) .topline .controls .download-popup-wrapper { opacity: 0 !important; pointer-events: none !important }
+    body.sync-mode:not(.banners-ready) .setsline a { opacity: 0; pointer-events: none }
+
+//- Download popup styles
+mixin downloadPopupStyles()
+  style.
+    .download-popup-menu {
+      background: #{lightMenuBg} !important;
+      border: 1px solid #{lightMenuBorder} !important;
+    }
+    .download-option {
+      border-bottom-color: #{lightMenuBorder} !important;
+    }
+
+//- Mobile/touch styles
+mixin mobileStyles()
+  style.
+    @media (pointer: coarse), (hover: none), (max-width: 640px) {
+      .topline { padding-top: 10px }
+      .setsline { padding-top: 10px; padding-bottom: 20px }
+      .topline .controls { gap: 20px }
+      .frame-box .download-btn,
+      .frame-box .restart-btn,
+      .frame-box .forward-btn { opacity: 1; pointer-events: auto; transform: translateY(0) }
+      .frame-box .forward-btn.is-disabled { opacity: .5; pointer-events: none }
+      .forward-btn:not(.is-playing) { background-color: #{lightToggleBg}; color: #{lightToggleIcon} }
+      .forward-btn.is-playing { background-color: #{lightToggleHoverBg}; color: #{lightToggleHoverIcon} }
+      .topline .controls a.forward-all { color: #{lightMainColor} }
+      .topline .controls a.forward-all:hover { color: #{lightMainColor} }
+      .topline .controls a.forward-all.is-playing { color: #{lightActiveColor} }
+      .frame-box iframe {
+        pointer-events: auto !important;
+        touch-action: none !important;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
+        overflow: hidden !important;
+      }
+      .topline .controls a.forward-all { color: #{lightMainColor} !important }
+      .topline .controls a.forward-all:hover,
+      .topline .controls a.forward-all:active,
+      .topline .controls a.forward-all.is-hover,
+      .topline .controls a.forward-all.active-click,
+      .topline .controls a.forward-all:focus-visible { color: #{lightMainColor} !important }
+      .topline .controls a.forward-all.is-playing { color: #{lightActiveColor} !important }
+      .topline .controls a.forward-all::after { opacity: 0 !important }
+      .topline .controls a.restart-all,
+      .topline .controls a[download] { color: #{lightMainColor} !important }
+      .topline .controls a.restart-all:hover,
+      .topline .controls a.restart-all:active,
+      .topline .controls a.restart-all.is-hover,
+      .topline .controls a.restart-all.active-click,
+      .topline .controls a.restart-all:focus-visible,
+      .topline .controls a[download]:hover,
+      .topline .controls a[download]:active,
+      .topline .controls a[download].is-hover,
+      .topline .controls a[download].active-click,
+      .topline .controls a[download]:focus-visible { color: #{lightMainColor} !important }
+      .topline .controls a.restart-all::after,
+      .topline .controls a[download]::after { opacity: 0 !important }
+      .topline .controls a.is-hover::after,
+      .topline .controls a.active-click::after { opacity: 0 !important }
+      .topline .controls a.restart-all.active-click,
+      .topline .controls a[download].active-click { color: #{lightActiveColor} !important }
+    }
+
+//- ========================================
+//- MIXINS - Navigation
+//- ========================================
+
+mixin rootSetPreviewButton(set, title)
+  a(class=`index set ${set}` href=`index.html`) #{title}
+
+mixin rootSizePreviewButton(type, size, title)
+  a(class=`index set ${type}` href=`index.html`) #{title} #{size}
+
+mixin setPreviewButton(set, title)
+  a(class=`set ${set}` href=`${set}.html`) #{title}
+
+mixin sizePreviewButton(size)
+  a(class=`set ${mainSet}` href=`${mainSet}-${size}.html`) #{size}
+
+//- ========================================
+//- MIXINS - Controls
+//- ========================================
+
+mixin fileButton(fileNamePath, title)
+  a(href=fileNamePath download=fileNamePath target='_blank' aria-label=title data-label='Download all banners')
+    i.bi.bi-file-earmark-arrow-down
+
+mixin downloadButton()
+  .download-popup-wrapper
+    button.download-main-btn(aria-label="Download" data-label="Download")
+      i.bi.bi-file-earmark-arrow-down
+    .download-popup-menu
+      a.download-option(href=`${mainSet}-all-banners.zip` download=`${mainSet}-all-banners.zip` target="_blank")
+        i.bi.bi-file-earmark-arrow-down
+        span All Banners
+      if showWholePackageDownload
+        .dropdown-separator
+        a.download-option.preview-option(href=`${mainSet}-whole-package.zip` download=`${mainSet}-whole-package.zip` target="_blank")
+          i.bi.bi-archive
+          span All Banners + Preview
+
+mixin restartAllButton(title)
+  a.restart-all(href='#' role='button' aria-label=title data-label='Restart')
+    i.bi.bi-arrow-clockwise
+
+mixin forwardAllButton(title)
+  a.forward-all.is-playing(href='#' role='button' aria-label=title data-label='Pause')
+    i.bi.bi-pause-fill
+
+//- ========================================
+//- MIXINS - Header
+//- ========================================
+
+mixin header
+  header
+    .topline
+      a.logo-link(href=(logoLink || '#') target=(logoLink ? "_blank" : null) aria-label=(logoLink ? 'Open site' : 'Reload page') data-reload=(logoLink ? null : '1'))
+        svg.logo(viewBox='0 0 201 20' xmlns='http://www.w3.org/2000/svg' xml:space='preserve' style='fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2')
+          g.slogan
+            path(d='M114.62 5.408v3.073h-1.764V.001h3.255c.585 0 1.103.102 1.554.306.451.205.807.509 1.064.911.259.403.388.9.388 1.492 0 .577-.132 1.066-.393 1.468a2.506 2.506 0 0 1-1.07.917c-.452.208-.966.313-1.543.313h-1.491Zm0-3.871V3.87h1.503c.25 0 .466-.049.649-.148.181-.098.324-.234.426-.409.103-.174.155-.376.155-.603 0-.236-.052-.44-.155-.615a1.091 1.091 0 0 0-.426-.41 1.343 1.343 0 0 0-.649-.148h-1.503Zm6.391 6.658a3.215 3.215 0 0 1-1.206-1.155 3.124 3.124 0 0 1-.45-1.667c0-.63.15-1.187.45-1.673.3-.486.701-.869 1.206-1.149a3.395 3.395 0 0 1 1.679-.421c.616 0 1.173.14 1.674.421.501.28.901.663 1.2 1.149.3.486.451 1.043.451 1.673 0 .622-.151 1.178-.451 1.667a3.22 3.22 0 0 1-1.2 1.155 3.35 3.35 0 0 1-1.674.423 3.386 3.386 0 0 1-1.679-.423Zm.308-3.704c-.133.255-.2.548-.2.882 0 .335.067.63.2.888.132.258.317.459.552.603.235.144.509.216.819.216.312 0 .582-.072.814-.216.232-.144.413-.345.547-.603.133-.258.198-.553.198-.888 0-.334-.065-.627-.198-.882a1.566 1.566 0 0 0-.547-.604 1.485 1.485 0 0 0-.814-.221c-.31 0-.584.074-.819.221a1.54 1.54 0 0 0-.552.604Zm12.947-2.225h1.776l-2.152 6.215h-1.479l-1.436-3.985-1.444 3.985h-1.48l-2.14-6.215h1.766l1.209 3.611 1.352-3.611h1.479l1.34 3.609 1.209-3.609Zm6.226 4.189 1.366.648a2.064 2.064 0 0 1-.574.797 2.83 2.83 0 0 1-.928.529 3.497 3.497 0 0 1-1.172.188c-.661 0-1.234-.145-1.719-.438a3.037 3.037 0 0 1-1.127-1.178 3.395 3.395 0 0 1-.399-1.639c0-.622.139-1.177.416-1.662.277-.486.65-.869 1.122-1.15a3.043 3.043 0 0 1 1.592-.421c.493 0 .93.078 1.31.233.38.156.7.375.962.655.261.281.461.605.597.974.137.368.205.767.205 1.2 0 .122-.005.241-.017.359a1.232 1.232 0 0 1-.063.301h-4.352c.021.159.059.307.118.444.114.266.289.473.523.621.236.147.52.222.854.222.304 0 .564-.061.78-.182a1.31 1.31 0 0 0 .506-.501Zm-2.185-2.744a1.302 1.302 0 0 0-.478.638 2.119 2.119 0 0 0-.073.251h2.578a1.277 1.277 0 0 0-.058-.28 1.174 1.174 0 0 0-.438-.604 1.31 1.31 0 0 0-.769-.221c-.296 0-.549.072-.762.216Zm6.272 1.423v3.347h-1.708V2.265h1.594v.929c.136-.336.324-.576.563-.717.316-.187.689-.28 1.122-.28h.364v1.48h-.536c-.417 0-.754.127-1.012.382-.258.254-.387.613-.387 1.075Zm2.356-2.868h1.707v6.215h-1.707V2.266Zm0-2.266h1.707v1.707h-1.707V0Zm4.439 4.85v3.631h-1.707V2.265h1.594v.76c.144-.273.346-.483.609-.628.322-.178.699-.268 1.131-.268.47 0 .882.099 1.235.296.353.197.629.473.826.825.197.353.296.765.296 1.235v3.996h-1.708V4.85c0-.244-.047-.452-.141-.626a1.029 1.029 0 0 0-.399-.41 1.169 1.169 0 0 0-.598-.148c-.22 0-.417.049-.592.148a1.022 1.022 0 0 0-.404.41 1.298 1.298 0 0 0-.142.626Zm6.066 2.93a2.827 2.827 0 0 1-1.07-1.081 3.147 3.147 0 0 1-.386-1.565c0-.584.129-1.102.386-1.554a2.825 2.825 0 0 1 1.06-1.063 2.987 2.987 0 0 1 1.525-.388c.448 0 .838.089 1.173.268.237.126.449.301.637.523v-.655h1.593v5.886c0 .546-.133 1.034-.398 1.463a2.807 2.807 0 0 1-1.087 1.007c-.46.242-.989.364-1.587.364a3.65 3.65 0 0 1-1.333-.239 3.113 3.113 0 0 1-1.053-.666 2.49 2.49 0 0 1-.631-1.007l1.582-.559c.083.289.254.516.511.684.259.166.566.25.924.25.279 0 .522-.051.727-.154.205-.103.363-.252.473-.449.11-.197.164-.429.164-.694v-.592a1.93 1.93 0 0 1-.489.358c-.333.171-.725.256-1.172.256-.576 0-1.093-.13-1.549-.393Zm.496-3.403a1.574 1.574 0 0 0-.188.78c0 .289.063.542.188.763.125.22.3.392.524.517.223.125.479.188.768.188.288 0 .539-.06.752-.181.212-.123.377-.293.494-.513.118-.22.176-.479.176-.774 0-.296-.06-.556-.181-.78a1.337 1.337 0 0 0-.501-.524 1.436 1.436 0 0 0-.74-.188c-.289 0-.545.063-.768.188a1.34 1.34 0 0 0-.524.524ZM115.064 12.237v1.411h1.458v1.48h-1.458v2.379c0 .212.038.389.113.529a.7.7 0 0 0 .353.313c.16.068.357.103.593.103.052 0 .114-.004.182-.012l.217-.023v1.446c-.115.016-.244.03-.388.045a3.72 3.72 0 0 1-.409.024c-.752 0-1.334-.204-1.748-.61-.413-.405-.62-.973-.62-1.7v-2.494h-1.047v-1.48h.057c.318 0 .562-.08.734-.238.171-.16.256-.399.256-.717v-.456h1.707Zm6.818 1.696c.501.281.901.664 1.201 1.15.299.485.45 1.043.45 1.672 0 .623-.151 1.178-.45 1.669-.3.489-.7.874-1.201 1.155a3.357 3.357 0 0 1-1.672.421c-.616 0-1.176-.14-1.679-.421a3.243 3.243 0 0 1-1.208-1.155 3.142 3.142 0 0 1-.45-1.669c0-.629.151-1.187.45-1.672.3-.486.703-.869 1.208-1.15a3.384 3.384 0 0 1 1.679-.421c.614 0 1.171.14 1.672.421Zm-.313 3.711c.133-.258.2-.554.2-.889a1.88 1.88 0 0 0-.2-.882 1.477 1.477 0 0 0-1.359-.825c-.312 0-.585.075-.821.223a1.549 1.549 0 0 0-.552.602 1.88 1.88 0 0 0-.198.882c0 .335.065.631.198.889.133.257.317.459.552.604.236.144.509.215.821.215.31 0 .582-.071.813-.215.231-.145.414-.347.546-.604Zm11.041-3.836c.345.197.617.472.814.825.197.353.296.765.296 1.235v3.995h-1.707v-3.631a1.38 1.38 0 0 0-.131-.625.981.981 0 0 0-.37-.41 1.081 1.081 0 0 0-.581-.148c-.22 0-.412.049-.574.148a.975.975 0 0 0-.376.41 1.38 1.38 0 0 0-.131.625v3.631h-1.708v-3.631c0-.243-.043-.452-.131-.625a.973.973 0 0 0-.369-.41 1.081 1.081 0 0 0-.581-.148c-.22 0-.411.049-.574.148a.963.963 0 0 0-.376.41c-.088.173-.13.382-.13.625v3.631h-1.709v-6.215h1.594v.753c.117-.228.279-.41.489-.548.349-.228.766-.341 1.253-.341.515 0 .97.131 1.36.392.229.154.405.338.534.553.165-.241.359-.435.587-.581.379-.242.823-.364 1.332-.364.448 0 .844.099 1.189.296Zm6.756.125c.5.281.901.664 1.201 1.15.299.485.449 1.043.449 1.672 0 .623-.15 1.178-.449 1.669-.3.489-.701.874-1.201 1.155a3.361 3.361 0 0 1-1.673.421c-.615 0-1.176-.14-1.679-.421a3.15 3.15 0 0 1-1.657-2.824c0-.629.151-1.187.449-1.672.3-.486.703-.869 1.208-1.15a3.387 3.387 0 0 1 1.679-.421c.614 0 1.172.14 1.673.421Zm-.313 3.711c.132-.258.199-.554.199-.889 0-.333-.067-.627-.199-.882a1.573 1.573 0 0 0-.546-.602 1.483 1.483 0 0 0-.814-.223 1.506 1.506 0 0 0-1.373.825 1.892 1.892 0 0 0-.198.882c0 .335.066.631.198.889.133.257.317.459.553.604.235.144.508.215.82.215.31 0 .582-.071.814-.215a1.53 1.53 0 0 0 .546-.604Zm4.86-3.785c.315-.186.689-.28 1.121-.28h.365v1.481h-.536c-.417 0-.754.126-1.013.381-.258.254-.387.613-.387 1.075v3.347h-1.707v-6.214h1.593v.927c.136-.336.324-.575.564-.717Zm4.063 0c.316-.186.689-.28 1.122-.28h.364v1.481h-.535c-.418 0-.755.126-1.014.381-.257.254-.386.613-.386 1.075v3.347h-1.707v-6.214h1.592v.927c.137-.336.325-.575.564-.717Zm6.596.074c.501.281.902.664 1.202 1.15.298.485.449 1.043.449 1.672a3.15 3.15 0 0 1-.449 1.669c-.3.489-.701.874-1.202 1.155A3.357 3.357 0 0 1 152.9 20c-.616 0-1.176-.14-1.679-.421a3.233 3.233 0 0 1-1.207-1.155 3.133 3.133 0 0 1-.45-1.669c0-.629.15-1.187.45-1.672a3.243 3.243 0 0 1 1.207-1.15 3.384 3.384 0 0 1 1.679-.421c.614 0 1.171.14 1.672.421Zm-.313 3.711c.133-.258.2-.554.2-.889a1.88 1.88 0 0 0-.2-.882 1.562 1.562 0 0 0-.545-.602 1.483 1.483 0 0 0-.814-.223 1.506 1.506 0 0 0-1.373.825 1.892 1.892 0 0 0-.198.882c0 .335.066.631.198.889.133.257.317.459.553.604.235.144.508.215.82.215.31 0 .582-.071.814-.215a1.52 1.52 0 0 0 .545-.604Zm9.007-.387 1.209-3.609h1.776l-2.152 6.215h-1.479l-1.436-3.985-1.445 3.985h-1.479l-2.14-6.215h1.764l1.21 3.612 1.351-3.612h1.481l1.34 3.609Zm4.123-4.166v-1.708h1.707v.99c0 .669-.163 1.217-.489 1.645-.327.428-.809.708-1.446.837v-.854c.265-.061.484-.173.654-.336.171-.162.283-.354.336-.574h-.762Zm4.137 1.923a.445.445 0 0 0-.188.376c0 .084.024.16.069.228a.58.58 0 0 0 .222.182c.102.052.23.103.382.148l.99.296c.516.152.91.381 1.183.689.273.306.409.685.409 1.132 0 .387-.1.724-.301 1.013-.201.288-.48.514-.837.677-.356.164-.777.245-1.263.245-.682 0-1.277-.161-1.781-.484a2.418 2.418 0 0 1-1.03-1.303l1.252-.593c.16.335.376.596.649.786.273.19.577.284.91.284.243 0 .429-.049.558-.147a.49.49 0 0 0 .194-.41.398.398 0 0 0-.068-.233.655.655 0 0 0-.206-.177 1.448 1.448 0 0 0-.341-.136l-1.059-.296c-.508-.145-.899-.378-1.172-.701a1.706 1.706 0 0 1-.41-1.143c0-.388.099-.725.296-1.013.197-.289.474-.514.83-.678a2.951 2.951 0 0 1 1.23-.244c.608 0 1.141.143 1.599.427.46.285.784.685.974 1.2l-1.263.592a1.215 1.215 0 0 0-.496-.62 1.452 1.452 0 0 0-.814-.233c-.22 0-.393.045-.518.136Zm10.114-.844v-2.923h1.708v8.617h-1.594v-.589a2.032 2.032 0 0 1-.706.492 3.005 3.005 0 0 1-1.183.233 3.088 3.088 0 0 1-2.761-1.606 3.288 3.288 0 0 1-.416-1.639c0-.606.141-1.155.421-1.644a3.205 3.205 0 0 1 1.138-1.166 3.047 3.047 0 0 1 1.606-.433c.455 0 .859.085 1.212.256.22.107.412.241.575.402Zm-.199 3.474c.132-.258.199-.554.199-.889 0-.333-.067-.629-.199-.887a1.496 1.496 0 0 0-.553-.604 1.536 1.536 0 0 0-.819-.216c-.311 0-.591.075-.837.223a1.555 1.555 0 0 0-.575.602 1.835 1.835 0 0 0-.205.882c0 .335.068.631.205.889.138.257.328.459.575.604.246.144.526.215.837.215.311 0 .584-.071.819-.215.236-.145.42-.347.553-.604Zm7.006-3.848c.401.19.714.454.938.792.224.337.336.73.336 1.178v4.097h-1.594v-.592a2.225 2.225 0 0 1-.955.598 2.99 2.99 0 0 1-.91.13c-.449 0-.836-.072-1.162-.216a1.666 1.666 0 0 1-.752-.619 1.733 1.733 0 0 1-.261-.962c0-.349.08-.659.239-.928.16-.27.405-.495.734-.678.33-.181.742-.31 1.235-.386l1.719-.278v-.166a.748.748 0 0 0-.279-.592c-.186-.16-.438-.24-.756-.24-.304 0-.572.084-.804.251-.23.167-.4.388-.506.661l-1.366-.649a2.23 2.23 0 0 1 .581-.9c.265-.25.584-.443.956-.58a3.474 3.474 0 0 1 1.219-.206c.522 0 .986.096 1.388.285Zm-.609 4.275c.117-.209.176-.438.176-.689v-.195l-1.411.251c-.244.047-.429.124-.558.235-.13.109-.194.266-.194.471 0 .191.072.339.216.444.144.107.323.16.536.16.28 0 .526-.061.739-.182a1.31 1.31 0 0 0 .496-.495Zm5.07-5.834v1.411h1.458v1.48h-1.458v2.379c0 .212.038.389.114.529a.698.698 0 0 0 .352.313c.16.068.357.103.593.103.053 0 .114-.004.183-.012l.216-.023v1.446c-.115.016-.243.03-.388.045-.144.016-.28.024-.409.024-.752 0-1.334-.204-1.747-.61-.414-.405-.621-.973-.621-1.7v-2.494h-1.047v-1.48h.057c.318 0 .563-.08.734-.238.171-.16.256-.399.256-.717v-.456h1.707Zm7.199 2.351c.224.337.336.73.336 1.178v4.097h-1.594v-.592a2.225 2.225 0 0 1-.955.598 2.99 2.99 0 0 1-.91.13c-.448 0-.836-.072-1.162-.216a1.666 1.666 0 0 1-.752-.619 1.741 1.741 0 0 1-.261-.962c0-.349.08-.659.239-.928.16-.27.405-.495.734-.678.33-.181.742-.31 1.235-.386l1.719-.278v-.166a.748.748 0 0 0-.279-.592c-.186-.16-.438-.24-.756-.24-.304 0-.572.084-.804.251-.23.167-.4.388-.506.661l-1.366-.649a2.23 2.23 0 0 1 .581-.9c.265-.25.585-.443.957-.58.37-.138.777-.206 1.218-.206.522 0 .986.096 1.388.285.401.19.714.454.938.792Zm-1.547 3.483c.117-.209.176-.438.176-.689v-.195l-1.411.251c-.243.047-.429.124-.558.235-.13.109-.194.266-.194.471 0 .191.072.339.216.444.144.107.323.16.536.16.281 0 .527-.061.739-.182.212-.122.379-.287.496-.495Z' style='fill:#fff')
+          path.logo-preview(d='M11.011 0h13.493l11.319 19.863H24.476L17.722 7.434l-2.733 5.04 4.016 7.389H0L11.011 0Zm43.804 0h10.983L54.787 19.863H41.294L29.975 0h11.347l6.754 12.431L54.815 0Zm30.919.002h13.405l-8.3 8.33 11.41 11.531H88.484L83.9 15.299l-4.543 4.564H67.666V.002h9.653v8.449L85.734.002Z' style='fill:#fff')
+      .controls
+        .loading-overlay
+          span.loading-label
+            span.loading-spinner
+            |  Loading banners…
+        +restartAllButton()
+        +forwardAllButton()
+        +downloadButton()
+
+    .setsline
+      +rootSetPreviewButton(setThinking, titleThinking)
+
+//- Footer mixin for complete control
+mixin footerContent()
+  | #{footerFullText}
+
+//- ========================================
+//- MIXINS - Banner Iframes
+//- ========================================
+
+mixin iframe(set, size, isInline)
+  .frame(class=isInline ? 'inline' : null data-id=`${set}-${size}`)
+    .size #{size}
+    .frame-box
+      iframe(class=`c${size}` src=`${set}-${size}/index.html?v=${v}`)
+      a.download-btn(href=`${set}-${size}.zip` download=`${set}-${size}.zip` aria-label=`Download ${set}-${size}.zip`)
+        i.bi.bi-file-earmark-arrow-down
+      a.forward-btn.is-playing(href='#' aria-label='Pause banner')
+        i.bi.bi-pause-fill
+      a.restart-btn(href='#' aria-label='Restart banner')
+        i.bi.bi-arrow-clockwise
+
+mixin inlineIframe(set, size)
+  +iframe(set, size, true)

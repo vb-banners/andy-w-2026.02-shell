@@ -27,6 +27,7 @@ motion/
 # Editor-specific files
 .vscode/
 .idea/
+.claude/
 
 # Temporary files
 *.tmp

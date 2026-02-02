@@ -7,6 +7,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
+    "postinstall": "[ -L node_modules ] || (echo \"$PWD\" | grep -q 'com~apple~CloudDocs' && [ -d node_modules ] && [ ! -d node_modules.nosync ] && mv node_modules node_modules.nosync && ln -s node_modules.nosync node_modules) || true",
     "dev": "gulp",
     "dev:build": "gulp devbuild",
     "build": "gulp build",

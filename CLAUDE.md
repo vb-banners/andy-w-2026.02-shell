@@ -152,6 +152,13 @@ master = gsap.timeline({delay: 0.25, repeat: loopMax - 1, defaults: {duration: 1
 
 Prefix folder name with underscore (e.g., `_shell-draft-300x250`) to exclude from build.
 
+## Build Pipeline
+
+- **Pug** → HTML (formatted with Prettier)
+- **Sass** → CSS (with Autoprefixer)
+- **Images** copied as-is
+- **JS** inlined in templates
+
 ## Build Output
 
 - `build.nosync/` - Compiled HTML, CSS, assets (gitignored)

@@ -19,7 +19,7 @@ module.exports = {
 
     // Preview page settings
     preview: {
-        showWholePackageDownload: false,  // Show "All Banners + Preview" download option
+        showWholePackageDownload: true,  // Show "All Banners + Preview" download option
         enablePreloading: false,          // Enable shimmer preloading animation
     },
 

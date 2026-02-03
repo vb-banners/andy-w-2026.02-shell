@@ -663,6 +663,21 @@ let watchTask = () => {
     watch('./src/sizes/**', { ignoreInitial: true }).on('unlink', () => {
         scheduleReconcileOrphans() // Always reconcile orphans, regardless of auto-zip setting
     })
+
+    // Watch banner.config.js for changes and rebuild templates
+    watch('./banner.config.js', { ignoreInitial: true }).on('change', () => {
+        console.log('[watch] banner.config.js changed, reloading config...')
+        // Clear require cache to reload config
+        delete require.cache[require.resolve('./banner.config.js')]
+        const newConfig = require('./banner.config.js')
+        // Update pugOptions with new config
+        pugOptions.data = { config: newConfig }
+        // Clear pug cache and rebuild all templates
+        cache.caches = {}
+        series(buildPug, buildGlobalPug, reload)(() => {
+            console.log('[watch] Templates rebuilt with new config')
+        })
+    })
 }
 
 // Periodically reconcile build directories vs src and remove orphans

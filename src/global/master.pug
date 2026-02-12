@@ -109,41 +109,12 @@ html(lang='en')
 
                     } catch(_) {}
                     
-                    // Check if parent preview has pause mode enabled
+                    // Notify parent preview that banner timeline is ready
                     try {
                         if (window.parent && window.parent !== window) {
-                            // Try to access parent's sessionStorage for pause mode
-                            var parentPauseMode = false;
-                            var savedTime = 0;
-                            try {
-                                parentPauseMode = window.parent.sessionStorage.getItem('preview-pause-mode') === 'true';
-                                // Get saved time for this specific banner
-                                var timesStr = window.parent.sessionStorage.getItem('preview-banner-times');
-                                if (timesStr && parentPauseMode) {
-                                    var times = JSON.parse(timesStr);
-                                    // Extract banner ID from current path - folder name before index.html
-                                    var pathParts = window.location.pathname.split('/').filter(function(p) { return p; });
-                                    var bannerId = pathParts[pathParts.length - 2] || '';
-                                    savedTime = times[bannerId] || 0;
-                                }
-                            } catch(_) {
-                                // Can't access parent storage, will be controlled via message
-                            }
-                            
-                            // If pause mode is active, pause at saved time before notifying parent
-                            if (parentPauseMode && tl) {
-                                if (savedTime > 0) {
-                                    tl.pause(savedTime, false);
-                                } else {
-                                    tl.pause(0, false);
-                                }
-                            }
-                            
-                            // Notify parent that this banner is ready for timeline synchronization
                             window.parent.postMessage({ type: 'banner-ready' }, '*');
                         }
-                    } catch(e) {
-                    }
+                    } catch(e) {}
                 };
                 
                 // Listen for timeline control messages from parent preview
